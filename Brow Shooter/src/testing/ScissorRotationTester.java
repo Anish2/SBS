@@ -19,6 +19,8 @@ public class ScissorRotationTester extends PApplet {
 
 
 	public void setup() {
+		this.displayWidth = 1100;
+		this.displayWidth = 2000;
 		size(500, 550);
 		background(0);
 		smooth();
@@ -44,17 +46,17 @@ public class ScissorRotationTester extends PApplet {
 
 	public void draw() {
 		background(0);
-		translate(50,0);
+		//translate(50,0);
 		//translate(moving_counter, y_counter);
-		translate(85, 253);
+		translate(205, 174);
 		rotate(radians(rotation_left));
-		translate(-85, -253);
+		translate(-205, -174);
 		image(left, 0, 0);
 		//rotate(radians(30));
 		//translate(-moving_counter, -y_counter);
-		translate(85, 253);
+		translate(205, 174);
 		rotate(radians(-rotation_left-rotation_right));
-		translate(-85, -253);
+		translate(-205, -174);
 		image(right, 0, 0);
 		world.draw();
 		world.step();
