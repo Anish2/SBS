@@ -12,7 +12,7 @@ public class ShooterTesting extends PApplet {
 	private FBox shooter;
 	private FCircle ball;
 	private float velocity = -1000f;
-	private boolean left, right;
+	private boolean left, right, up, down;
 	private int speed = 5;
 
 	public void setup() {
@@ -52,7 +52,7 @@ public class ShooterTesting extends PApplet {
 		b.setVelocity(0f, velocity);
 		return b;
 	}
-	
+
 	public FCircle makeBall() {
 		FCircle b = new FCircle(15);
 		b.setPosition(250, 450);
@@ -63,7 +63,7 @@ public class ShooterTesting extends PApplet {
 	}
 
 	private void handleShooterMovement() {
-		if(left & !right && !(shooter.getX() < 0))
+		if(left && !right && !(shooter.getX() < 0))
 			shooter.setPosition(shooter.getX() - speed, shooter.getY());
 		if(right && ! left && !(shooter.getX() > width))
 			shooter.setPosition(shooter.getX() + speed, shooter.getY());
@@ -81,6 +81,14 @@ public class ShooterTesting extends PApplet {
 			{
 				right = false;
 			}
+			if(keyCode == UP)
+			{
+				up = false;
+			}
+			if(keyCode == DOWN)
+			{
+				down = false;
+			}
 		}
 	}
 
@@ -95,6 +103,14 @@ public class ShooterTesting extends PApplet {
 			if (keyCode == RIGHT)
 			{
 				right = true;
+			}
+			if(keyCode == UP)
+			{
+				up = true;
+			}
+			if(keyCode == DOWN)
+			{
+				down = true;
 			}
 		}
 	}
