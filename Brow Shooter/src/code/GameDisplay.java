@@ -80,22 +80,25 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 		world.add(flame_one);
 		world.add(flame_two);
+		
+		//transformBrow();
 
 	}
 
 	public void draw() {
 		background(0);
-		//thread("mussleFire");
+
 		mussleFire();
 		noStroke();
-		//handleShooterMovement();
-		thread("handleShooterMovement");
-		//transformBrow();
+
+		//thread("handleShooterMovement");
+		handleShooterMovement();
 		
+
 		world.draw();
 		world.step();
 		mussle_num++;
-		
+
 	}
 
 	public void mussleFire() {
@@ -195,13 +198,30 @@ public class GameDisplay extends PApplet {
 		b.attachImage(bullets1);
 		return b;
 	}
-	
+
 	public void transformBrow() {
-		right_brow.setRotation(radians(60));
-		right_brow.setPosition(194+100, 410);
 		
+		world.remove(right_brow);
+		world.remove(left_brow);
+
+		right_brow = new FBox(10,10);
+		right_brow.attachImage(right_browImg);
+		right_brow.setPosition(194+100, 404);
+		right_brow.setRotation(radians(60));
+		right_brow.setStatic(true);
+
+		left_brow = new FBox(10,10);
+		left_brow.attachImage(left_browImg);
+		left_brow.setPosition(194-100,409);
 		left_brow.setRotation(radians(-60));
-		left_brow.setPosition(194-100, 410);
+		left_brow.setStatic(true);
+		
+		world.add(left_brow);
+		world.add(right_brow);
+		
+		flame_one.setPosition(183, 418-42);
+		flame_two.setPosition(207, 418-42);
+
 	}
 
 
@@ -254,6 +274,9 @@ public class GameDisplay extends PApplet {
 			{
 				down = false;
 			}
+			/*if (key == 'a' || key == 'A') {
+				transformBrow();
+			}*/
 		}
 	}
 
@@ -277,11 +300,16 @@ public class GameDisplay extends PApplet {
 			{
 				down = true;
 			}
+			
+			/*if (key == 'a' || key == 'A') {
+				transformBrow();
+			}*/
 		}
 	}
 
 	public void mousePressed() {
 		System.out.println(mouseX+" "+mouseY);
+		transformBrow();
 	}
 
 }
