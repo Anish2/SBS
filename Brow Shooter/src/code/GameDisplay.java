@@ -17,6 +17,7 @@ public class GameDisplay extends PApplet {
 	private boolean left, right, up, down;
 	private int mussle_num = 0;
 	private int hor_speed = 7, vert_speed = 7;
+	private boolean isTransformed = false;
 
 	public void setup() {
 		Fisica.init(this);
@@ -52,6 +53,29 @@ public class GameDisplay extends PApplet {
 		//smooth();
 
 		// Fisica Code
+		normalSetup();
+
+		//transformBrow();
+
+	}
+
+	public void draw() {
+		background(0);
+
+		mussleFire();
+		noStroke();
+
+		//thread("handleShooterMovement");
+		handleShooterMovement();
+
+
+		world.draw();
+		world.step();
+		mussle_num++;
+
+	}
+
+	public void normalSetup() {
 		right_brow = new FBox(10,10);
 		right_brow.attachImage(right_browImg);
 		right_brow.setPosition(194, 410);
@@ -80,25 +104,6 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 		world.add(flame_one);
 		world.add(flame_two);
-		
-		//transformBrow();
-
-	}
-
-	public void draw() {
-		background(0);
-
-		mussleFire();
-		noStroke();
-
-		//thread("handleShooterMovement");
-		handleShooterMovement();
-		
-
-		world.draw();
-		world.step();
-		mussle_num++;
-
 	}
 
 	public void mussleFire() {
@@ -200,7 +205,7 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void transformBrow() {
-		
+
 		world.remove(right_brow);
 		world.remove(left_brow);
 
@@ -215,10 +220,10 @@ public class GameDisplay extends PApplet {
 		left_brow.setPosition(194-100,409);
 		left_brow.setRotation(radians(-60));
 		left_brow.setStatic(true);
-		
+
 		world.add(left_brow);
 		world.add(right_brow);
-		
+
 		flame_one.setPosition(183, 418-42);
 		flame_two.setPosition(207, 418-42);
 
@@ -274,9 +279,7 @@ public class GameDisplay extends PApplet {
 			{
 				down = false;
 			}
-			/*if (key == 'a' || key == 'A') {
-				transformBrow();
-			}*/
+
 		}
 	}
 
@@ -300,16 +303,20 @@ public class GameDisplay extends PApplet {
 			{
 				down = true;
 			}
-			
-			/*if (key == 'a' || key == 'A') {
-				transformBrow();
-			}*/
+
 		}
 	}
 
-	public void mousePressed() {
+	public void mousePressed() {		
 		System.out.println(mouseX+" "+mouseY);
-		transformBrow();
+		if (!isTransformed) {
+			transformBrow();
+			isTransformed = true;
+		}
+		else {
+			normalSetup();
+			isTransformed = false;
+		}
 	}
 
 }
