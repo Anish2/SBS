@@ -10,14 +10,17 @@ import fisica.Fisica;
 public class GameDisplay extends PApplet {
 
 	private PImage left_browImg, right_browImg, flame_oneImg, flame_twoImg, flame_threeImg, flame_fourImg;
+	private PImage bg;
 	private PImage bullets1, bullets2, bullets3, bullets4, bullets5;
 	private FWorld world;
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
 	private float velocity = -800f;
+	private float bgXPos = 0, bgYPos;
 	private boolean left, right, up, down;
 	private int mussle_num = 0;
 	private int hor_speed = 7, vert_speed = 7;
 	private boolean isTransformed = false;
+	private float prevXPos, prevYPos;
 
 	public void setup() {
 		Fisica.init(this);
@@ -35,6 +38,7 @@ public class GameDisplay extends PApplet {
 		bullets3 = loadImage("bullets3.png");
 		bullets4 = loadImage("bullets4.png");
 		bullets5 = loadImage("bullets5.png");
+		bg = loadImage("background.png");
 
 
 		left_browImg.resize(width/2, height/2);
@@ -49,30 +53,49 @@ public class GameDisplay extends PApplet {
 		bullets3.resize(width, height);
 		bullets4.resize(width, height);
 		bullets5.resize(width, height);
+		
+		bg.resize((int)(width*1.5), (int)(height*1.5));
 
-		//smooth();
-
-		// Fisica Code
 		normalSetup();
-
-		//transformBrow();
-
 	}
 
 	public void draw() {
 		background(0);
+		handleScreenMotion();
+		
+		image(bg, bgXPos, bgYPos);
 
 		mussleFire();
 		noStroke();
 
-		//thread("handleShooterMovement");
 		handleShooterMovement();
-
-
+		
 		world.draw();
 		world.step();
 		mussle_num++;
 
+	}
+	
+	public void handleScreenMotion() {
+		float x = flame_one.getX();
+		float y = flame_one.getY();
+		float scale = 0.4f;
+		if (prevXPos <= x) {
+			bgXPos -= (x-prevXPos)*scale;
+		}		
+		else if (prevXPos >= x) {
+			bgXPos += (prevXPos-x)*scale;
+		}
+		
+		if (prevYPos >= y) {
+			bgYPos += (prevYPos-y)*scale;
+		}
+		else if (prevYPos <= y) {
+			bgYPos -= (y-prevYPos)*scale;
+		}
+		
+		prevXPos = x;
+		prevYPos = y;
 	}
 
 	public void normalSetup() {
@@ -90,11 +113,16 @@ public class GameDisplay extends PApplet {
 		flame_one.attachImage(flame_oneImg);
 		flame_one.setPosition(183, 418);
 		flame_one.setStatic(true);
+		prevXPos = flame_one.getX();
+		prevYPos = flame_one.getY();
 
 		flame_two = new FBox(10,10);
 		flame_two.attachImage(flame_oneImg);
 		flame_two.setPosition(207, 418);
 		flame_two.setStatic(true);
+		
+		bgXPos = -0.25f*width;
+		bgYPos = -0.25f*height;
 
 		// world configuration
 		world = new FWorld();
@@ -308,7 +336,7 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void mousePressed() {		
-		System.out.println(mouseX+" "+mouseY);
+		//System.out.println(mouseX+" "+mouseY);
 		if (!isTransformed) {
 			transformBrow();
 			isTransformed = true;
