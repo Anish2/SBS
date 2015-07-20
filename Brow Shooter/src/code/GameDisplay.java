@@ -1,5 +1,7 @@
 package code;
 
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 import fisica.FBox;
@@ -10,10 +12,11 @@ import fisica.Fisica;
 public class GameDisplay extends PApplet {
 
 	private PImage left_browImg, right_browImg, flame_oneImg, flame_twoImg, flame_threeImg, flame_fourImg;
-	private PImage bg;
+	private PImage bg, barImg;
 	private PImage bullets1, bullets2, bullets3, bullets4, bullets5;
 	private FWorld world;
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
+	private FBox bar;
 	private float velocity = -800f;
 	private float bgXPos = 0, bgYPos;
 	private boolean left, right, up, down;
@@ -21,14 +24,15 @@ public class GameDisplay extends PApplet {
 	private int hor_speed = 7, vert_speed = 7;
 	private boolean isTransformed = false;
 	private float prevXPos, prevYPos;
+	private ArrayList<FCircle> bullets = new ArrayList<FCircle>();
 
 	public void setup() {
 		Fisica.init(this);
 		frameRate(75);
 		size(400, 600);
 		background(0);
-		left_browImg = loadImage("Brow Fighter default left brow.png");
-		right_browImg = loadImage("Brow Fighter default right brow.png");
+		left_browImg = loadImage("brow BBBB L.png");
+		right_browImg = loadImage("brow BBBB R.png");
 		flame_oneImg = loadImage("1.png");
 		flame_twoImg = loadImage("2.png");
 		flame_threeImg = loadImage("3.png");
@@ -38,11 +42,13 @@ public class GameDisplay extends PApplet {
 		bullets3 = loadImage("bullets3.png");
 		bullets4 = loadImage("bullets4.png");
 		bullets5 = loadImage("bullets5.png");
+		barImg = loadImage("brow bars 1.png");
 		bg = loadImage("background.png");
 
 
-		left_browImg.resize(width/2, height/2);
-		right_browImg.resize(width/2, height/2);
+		left_browImg.resize(width, height);
+		right_browImg.resize(width, height);
+		barImg.resize(width, height);
 		flame_oneImg.resize(width/3, height/3);
 		flame_twoImg.resize(width/3, height/3);
 		flame_threeImg.resize(width/3, height/3);
@@ -60,20 +66,35 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void draw() {
-		background(0);
-		handleScreenMotion();
-		
-		image(bg, bgXPos, bgYPos);
+		//handleScreenMotion();
+		background(120);
+		//handleBarMotion();
+		//image(bg, bgXPos, bgYPos);
 
 		mussleFire();
 		noStroke();
 
 		handleShooterMovement();
 		
+		handleBulletMovement();
+		
 		world.draw();
 		world.step();
 		mussle_num++;
 
+	}
+	
+	public void handleBulletMovement() {
+		for (FCircle c: bullets) {
+			c.setPosition(c.getX(), c.getY()-8);		
+		}
+	}
+	
+	public void handleBarMotion() {
+		if (Math.random() > 0.5)
+			bar.setPosition(bar.getX()-5, bar.getY()+4);
+		else
+			bar.setPosition(bar.getX()+5, bar.getY()+4);
 	}
 	
 	public void handleScreenMotion() {
@@ -101,28 +122,41 @@ public class GameDisplay extends PApplet {
 	public void normalSetup() {
 		right_brow = new FBox(10,10);
 		right_brow.attachImage(right_browImg);
-		right_brow.setPosition(194, 410);
+		right_brow.setPosition(194+8+10+3, 410);
 		right_brow.setStatic(true);
 
 		left_brow = new FBox(10,10);
 		left_brow.attachImage(left_browImg);
-		left_brow.setPosition(194,410);
+		left_brow.setPosition(194-8+10+3,410);
 		left_brow.setStatic(true);
 
 		flame_one = new FBox(10,10);
 		flame_one.attachImage(flame_oneImg);
-		flame_one.setPosition(183, 418);
+		flame_one.setPosition(184+3, 405);
 		flame_one.setStatic(true);
 		prevXPos = flame_one.getX();
 		prevYPos = flame_one.getY();
 
 		flame_two = new FBox(10,10);
 		flame_two.attachImage(flame_oneImg);
-		flame_two.setPosition(207, 418);
+		flame_two.setPosition(207+3, 405);
 		flame_two.setStatic(true);
+		
+		bar = new FBox(10,10);
+		bar.attachImage(barImg);
+		bar.setDensity(0);
+		bar.setPosition(200,50);
+		bar.setStatic(true);
 		
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
+		
+		/*FRevoluteJoint left_joint = new FRevoluteJoint(left_brow, flame_one);
+		left_joint.setEnableLimit(true);
+		left_joint.setEnableMotor(true);
+		left_joint.setMotorSpeed(4.0f);
+		FRevoluteJoint right_joint = new FRevoluteJoint(right_brow, flame_two);*/
+		
 
 		// world configuration
 		world = new FWorld();
@@ -132,6 +166,10 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 		world.add(flame_one);
 		world.add(flame_two);
+		world.add(bar);
+		
+		//world.add(left_joint);
+		//world.add(right_joint);
 	}
 
 	public void mussleFire() {
@@ -168,10 +206,12 @@ public class GameDisplay extends PApplet {
 		strokeWeight(1);
 		PImage temp2 = flame_twoImg;
 		PImage temp1 = flame_oneImg;
+		FCircle bullet = null;
 		if (frameCount % 10 == 0) {
 			temp2.resize(width/3, height/3);
 			flame_two.attachImage(temp2);
-			world.add(makeBall((int) (flame_two.getX()-2),  (int) (flame_two.getY()-126)));
+			bullet = makeBall((int) (flame_two.getX()-2),  (int) (flame_two.getY()-126));
+			world.add(bullet);
 			flame_two.dettachImage();
 			temp2.resize(1, 1);
 			flame_two.attachImage(temp2);	
@@ -191,7 +231,8 @@ public class GameDisplay extends PApplet {
 		else if (frameCount % 10 == 5) {
 			temp1.resize(width/3, height/3);
 			flame_one.attachImage(temp1);
-			world.add(makeBall((int) (flame_one.getX()-2), (int) (flame_one.getY()-126)));
+			bullet = makeBall((int) (flame_one.getX()-2), (int) (flame_one.getY()-126));
+			world.add(bullet);
 			//System.out.println((int) (flame_one.getY()-2));
 			flame_one.dettachImage();
 			temp1.resize(1, 1);
@@ -210,14 +251,17 @@ public class GameDisplay extends PApplet {
 				temp1 = flame_twoImg;
 			}
 		}
+		if (bullet != null)
+			bullets.add(bullet);
 	}
 
 	public FCircle makeBall(int xPos, int yPos) {
 		FCircle b = new FCircle(15);
 		b.setPosition(xPos, yPos);
-		b.setForce(-9.8f, -9.8f);
+		//b.setForce(-9.8f, -9.8f);
 		b.setNoStroke();
-		b.setVelocity(0f, velocity);
+		//b.setVelocity(0f, velocity);
+		b.setStatic(true);
 		b.attachImage(bullets1);
 		return b;
 	}
@@ -225,16 +269,17 @@ public class GameDisplay extends PApplet {
 	public FCircle makeBall(int xPos) {
 		FCircle b = new FCircle(15);
 		b.setPosition(xPos, 290);
-		b.setForce(-9.8f, -9.8f);
+		//b.setForce(-9.8f, -9.8f);
 		b.setNoStroke();
-		b.setVelocity(0f, velocity);
+		//b.setVelocity(0f, velocity);
+		b.setStatic(true);
 		b.attachImage(bullets1);
 		return b;
 	}
 
 	public void transformBrow() {
 
-		world.remove(right_brow);
+		/*world.remove(right_brow);
 		world.remove(left_brow);
 
 		right_brow = new FBox(10,10);
@@ -253,7 +298,9 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 
 		flame_one.setPosition(183, 418-42);
-		flame_two.setPosition(207, 418-42);
+		flame_two.setPosition(207, 418-42);*/
+		
+		//left_brow.setRotation(radians(90));
 
 	}
 
@@ -337,14 +384,15 @@ public class GameDisplay extends PApplet {
 
 	public void mousePressed() {		
 		//System.out.println(mouseX+" "+mouseY);
-		if (!isTransformed) {
+		//transformBrow();
+		/*if (!isTransformed) {
 			transformBrow();
 			isTransformed = true;
 		}
 		else {
 			normalSetup();
 			isTransformed = false;
-		}
+		}*/
 	}
 
 }
