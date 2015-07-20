@@ -6,6 +6,7 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import fisica.FBox;
 import fisica.FCircle;
+import fisica.FRevoluteJoint;
 import fisica.FWorld;
 import fisica.Fisica;
 
@@ -71,12 +72,15 @@ public class GameDisplay extends PApplet {
 		//handleBarMotion();
 		//image(bg, bgXPos, bgYPos);
 
-		mussleFire();
-		noStroke();
+		//mussleFire();
+		//noStroke();
 
 		handleShooterMovement();
 		
 		handleBulletMovement();
+		
+		//flame_one.dettachImage();
+		flame_two.dettachImage();
 		
 		world.draw();
 		world.step();
@@ -121,14 +125,15 @@ public class GameDisplay extends PApplet {
 
 	public void normalSetup() {
 		right_brow = new FBox(10,10);
-		right_brow.attachImage(right_browImg);
+		//right_brow.attachImage(right_browImg);
 		right_brow.setPosition(194+8+10+3, 410);
 		right_brow.setStatic(true);
 
 		left_brow = new FBox(10,10);
-		left_brow.attachImage(left_browImg);
+		//left_brow.attachImage(left_browImg);
 		left_brow.setPosition(194-8+10+3,410);
-		left_brow.setStatic(true);
+		left_brow.setVelocity(-550f, 0);
+		//left_brow.setStatic(true);
 
 		flame_one = new FBox(10,10);
 		flame_one.attachImage(flame_oneImg);
@@ -138,24 +143,29 @@ public class GameDisplay extends PApplet {
 		prevYPos = flame_one.getY();
 
 		flame_two = new FBox(10,10);
-		flame_two.attachImage(flame_oneImg);
+		//flame_two.attachImage(flame_oneImg);
 		flame_two.setPosition(207+3, 405);
 		flame_two.setStatic(true);
 		
+		FBox temp = new FBox(50, 50);
+		temp.setPosition(189, 489);
+		temp.setStatic(true);
+		
 		bar = new FBox(10,10);
 		bar.attachImage(barImg);
-		bar.setDensity(0);
 		bar.setPosition(200,50);
 		bar.setStatic(true);
 		
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
 		
-		/*FRevoluteJoint left_joint = new FRevoluteJoint(left_brow, flame_one);
-		left_joint.setEnableLimit(true);
+		FRevoluteJoint left_joint = new FRevoluteJoint(left_brow, temp);
+		//left_joint.setEnableLimit(true);
 		left_joint.setEnableMotor(true);
-		left_joint.setMotorSpeed(4.0f);
-		FRevoluteJoint right_joint = new FRevoluteJoint(right_brow, flame_two);*/
+		left_joint.setMotorSpeed(200f);
+		left_joint.setAnchor(temp.getX(), temp.getY());
+		
+		//FRevoluteJoint right_joint = new FRevoluteJoint(right_brow, flame_two);
 		
 
 		// world configuration
@@ -166,9 +176,10 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 		world.add(flame_one);
 		world.add(flame_two);
+		world.add(temp);
 		world.add(bar);
 		
-		//world.add(left_joint);
+		world.add(left_joint);
 		//world.add(right_joint);
 	}
 
@@ -383,7 +394,7 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void mousePressed() {		
-		//System.out.println(mouseX+" "+mouseY);
+		System.out.println(mouseX+" "+mouseY);
 		//transformBrow();
 		/*if (!isTransformed) {
 			transformBrow();
