@@ -295,29 +295,37 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void transformBrow() {
-
+		
 		world.remove(right_brow);
 		world.remove(left_brow);
+		
+		if (isTransformed) {
+			right_brow = new FBox(10,10);
+			right_brow.attachImage(right_browImg);
+			right_brow.setPosition(flame_one.getX()+28, flame_one.getY()+5);
+			right_brow.setStatic(true);
 
-		right_brow = new FBox(10,10);
-		right_brow.attachImage(right_browImg);
-		right_brow.setPosition(194+98, 404+46);
-		right_brow.setRotation(radians(60));
-		right_brow.setStatic(true);
+			left_brow = new FBox(10,10);
+			left_brow.attachImage(left_browImg);
+			left_brow.setPosition(flame_two.getX()-11,flame_two.getY()+5);
+			left_brow.setStatic(true);
+		}
+		else {
+			right_brow = new FBox(10,10);
+			right_brow.attachImage(right_browImg);
+			right_brow.setPosition(flame_one.getX()+105, flame_one.getY()+45);
+			right_brow.setRotation(radians(60));
+			right_brow.setStatic(true);
 
-		left_brow = new FBox(10,10);
-		left_brow.attachImage(left_browImg);
-		left_brow.setPosition(194-80,438);
-		left_brow.setRotation(radians(-60));
-		left_brow.setStatic(true);
-
+			left_brow = new FBox(10,10);
+			left_brow.attachImage(left_browImg);
+			left_brow.setPosition(flame_two.getX()-96,flame_two.getY()+33);
+			left_brow.setRotation(radians(-60));
+			left_brow.setStatic(true);			
+		}
+		
 		world.add(left_brow);
 		world.add(right_brow);
-
-		/*flame_one.setPosition(183, 418-42);
-		flame_two.setPosition(207, 418-42);*/
-
-		//left_brow.setRotation(radians(90));
 
 	}
 
@@ -407,7 +415,7 @@ public class GameDisplay extends PApplet {
 			isTransformed = true;
 		}
 		else {
-			normalSetup();
+			transformBrow();
 			isTransformed = false;
 		}
 	}
