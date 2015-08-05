@@ -19,7 +19,7 @@ public class GameDisplay extends PApplet {
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
 	private FBox bar;
 	private float velocity = -800f;
-	private float bgXPos = 0, bgYPos;
+	private float bgXPos, bgYPos, bgscrollXPos, bgscrollYPos;
 	private boolean left, right, up, down;
 	private int mussle_num = 0;
 	private int hor_speed = 7, vert_speed = 7;
@@ -44,7 +44,7 @@ public class GameDisplay extends PApplet {
 		bullets4 = loadImage("bullets4.png");
 		bullets5 = loadImage("bullets5.png");
 		barImg = loadImage("brow bars 1.png");
-		bg = loadImage("background.png");
+		bg = loadImage("map.png");
 
 
 		left_browImg.resize(width, height);
@@ -67,16 +67,15 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void draw() {
-		//handleScreenMotion();
-		background(120);
+		handleScreenMotion();
+		//background(120);
 		//handleBarMotion();
-		//image(bg, bgXPos, bgYPos);
+		image(bg, bgXPos, bgYPos);
 
 		mussleFire();
 		//noStroke();
 
 		handleShooterMovement();
-
 		handleBulletMovement();
 
 		//flame_one.dettachImage();
@@ -118,12 +117,18 @@ public class GameDisplay extends PApplet {
 			bgXPos += (prevXPos-x)*scale;
 		}
 
-		if (prevYPos >= y) {
+		/*if (prevYPos >= y) {
 			bgYPos += (prevYPos-y)*scale;
 		}
 		else if (prevYPos <= y) {
 			bgYPos -= (y-prevYPos)*scale;
+		}*/
+		if (bgYPos >= -15) {
+			bgXPos = -0.25f*width;
+			bgYPos = -0.25f*height;
 		}
+			
+		bgYPos += 2*scale;
 
 		prevXPos = x;
 		prevYPos = y;
@@ -138,7 +143,6 @@ public class GameDisplay extends PApplet {
 		left_brow = new FBox(10,10);
 		left_brow.attachImage(left_browImg);
 		left_brow.setPosition(194-8+10+3,410);
-		//left_brow.setVelocity(-550f, 0);
 		left_brow.setStatic(true);
 
 		flame_one = new FBox(10,10);
@@ -153,26 +157,15 @@ public class GameDisplay extends PApplet {
 		flame_two.setPosition(207+3, 405);
 		flame_two.setStatic(true);
 
-		FBox temp = new FBox(50, 50);
-		temp.setPosition(189, 489);
-		temp.setStatic(true);
-
-		bar = new FBox(10,10);
+		/*bar = new FBox(10,10);
 		bar.attachImage(barImg);
 		bar.setPosition(200,50);
-		bar.setStatic(true);
+		bar.setStatic(true);*/
 
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
-
-		FRevoluteJoint left_joint = new FRevoluteJoint(left_brow, temp);
-		//left_joint.setEnableLimit(true);
-		left_joint.setEnableMotor(true);
-		left_joint.setMotorSpeed(200f);
-		left_joint.setAnchor(temp.getX(), temp.getY());
-
-		//FRevoluteJoint right_joint = new FRevoluteJoint(right_brow, flame_two);
-
+		bgscrollXPos = -0.25f*width;
+		bgscrollYPos = -0.25f*height;
 
 		// world configuration
 		world = new FWorld();
@@ -182,11 +175,8 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 		world.add(flame_one);
 		world.add(flame_two);
-		//world.add(temp);
-		world.add(bar);
+		//world.add(bar);
 
-		//world.add(left_joint);
-		//world.add(right_joint);
 	}
 
 	public void mussleFire() {
