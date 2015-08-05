@@ -13,13 +13,13 @@ import fisica.Fisica;
 public class GameDisplay extends PApplet {
 
 	private PImage left_browImg, right_browImg, flame_oneImg, flame_twoImg, flame_threeImg, flame_fourImg;
-	private PImage bg, barImg;
+	private PImage bg, barImg, cloud;
 	private PImage bullets1, bullets2, bullets3, bullets4, bullets5;
 	private FWorld world;
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
 	private FBox bar;
 	private float velocity = -800f;
-	private float bgXPos, bgYPos, bgscrollXPos, bgscrollYPos;
+	private float bgXPos, bgYPos, cloudXPos, cloudYPos, backXPos, backYPos;
 	private boolean left, right, up, down;
 	private int mussle_num = 0;
 	private int hor_speed = 7, vert_speed = 7;
@@ -45,7 +45,7 @@ public class GameDisplay extends PApplet {
 		bullets5 = loadImage("bullets5.png");
 		barImg = loadImage("brow bars 1.png");
 		bg = loadImage("map.png");
-
+		cloud = loadImage("cloud1.png");
 
 		left_browImg.resize(width, height);
 		right_browImg.resize(width, height);
@@ -62,6 +62,7 @@ public class GameDisplay extends PApplet {
 		bullets5.resize(width, height);
 
 		bg.resize((int)(width*1.5), (int)(height*1.5));
+		cloud.resize((int)(width*0.75), (int)(height*0.75));
 
 		normalSetup();
 	}
@@ -70,8 +71,15 @@ public class GameDisplay extends PApplet {
 		handleScreenMotion();
 		//background(120);
 		//handleBarMotion();
-		image(bg, bgXPos, bgYPos);
-
+		image(bg, bgXPos, bgYPos);		
+		image(bg, backXPos, backYPos);		
+		if (frameCount % 250 == 200) {
+			cloudXPos = (int)(Math.random()*(width-120));
+			cloudYPos = 0;
+			image(cloud, cloudXPos, cloudYPos);
+		}
+		else
+			image(cloud, cloudXPos, cloudYPos);
 		mussleFire();
 		//noStroke();
 
@@ -109,12 +117,15 @@ public class GameDisplay extends PApplet {
 	public void handleScreenMotion() {
 		float x = flame_one.getX();
 		float y = flame_one.getY();
-		float scale = 0.4f;
+		float scale = 1f;
+		float cloudscale = 3.2f;
 		if (prevXPos <= x) {
 			bgXPos -= (x-prevXPos)*scale;
+			cloudXPos -= (x-prevXPos)*scale*2;
 		}		
 		else if (prevXPos >= x) {
 			bgXPos += (prevXPos-x)*scale;
+			cloudXPos += (prevXPos-x)*scale*2;
 		}
 
 		/*if (prevYPos >= y) {
@@ -123,12 +134,14 @@ public class GameDisplay extends PApplet {
 		else if (prevYPos <= y) {
 			bgYPos -= (y-prevYPos)*scale;
 		}*/
-		if (bgYPos >= -15) {
+		/*if (bgYPos >= -15) {
 			bgXPos = -0.25f*width;
 			bgYPos = -0.25f*height;
-		}
-			
+		}*/
+
 		bgYPos += 2*scale;
+		backYPos += 2*scale;
+		cloudYPos += 2*cloudscale;
 
 		prevXPos = x;
 		prevYPos = y;
@@ -164,8 +177,10 @@ public class GameDisplay extends PApplet {
 
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
-		bgscrollXPos = -0.25f*width;
-		bgscrollYPos = -0.25f*height;
+		backXPos = -0.25f*width;
+		backYPos = -1f*height;
+		cloudXPos = 0;
+		cloudYPos = 0;
 
 		// world configuration
 		world = new FWorld();
@@ -285,10 +300,10 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void transformBrow() {
-		
+
 		world.remove(right_brow);
 		world.remove(left_brow);
-		
+
 		if (isTransformed) {
 			right_brow = new FBox(10,10);
 			right_brow.attachImage(right_browImg);
@@ -313,7 +328,7 @@ public class GameDisplay extends PApplet {
 			left_brow.setRotation(radians(-60));
 			left_brow.setStatic(true);			
 		}
-		
+
 		world.add(left_brow);
 		world.add(right_brow);
 
