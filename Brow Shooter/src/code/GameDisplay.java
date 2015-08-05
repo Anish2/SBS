@@ -60,7 +60,7 @@ public class GameDisplay extends PApplet {
 		bullets3.resize(width, height);
 		bullets4.resize(width, height);
 		bullets5.resize(width, height);
-		
+
 		bg.resize((int)(width*1.5), (int)(height*1.5));
 
 		normalSetup();
@@ -72,35 +72,41 @@ public class GameDisplay extends PApplet {
 		//handleBarMotion();
 		//image(bg, bgXPos, bgYPos);
 
-		//mussleFire();
+		mussleFire();
 		//noStroke();
 
 		handleShooterMovement();
-		
+
 		handleBulletMovement();
-		
+
 		//flame_one.dettachImage();
-		flame_two.dettachImage();
-		
+		//flame_two.dettachImage();
+
 		world.draw();
 		world.step();
 		mussle_num++;
 
 	}
-	
+
 	public void handleBulletMovement() {
-		for (FCircle c: bullets) {
-			c.setPosition(c.getX(), c.getY()-8);		
+		for (int i = bullets.size()-1; i >= 0; i--) {
+			FCircle c = bullets.get(i);
+			c.setPosition(c.getX(), c.getY()-8);
+			int offset = 180;
+			if (c.getX() < 0 || c.getX() > width || c.getY() < -offset || c.getY() > height-offset) {
+				bullets.remove(i);
+				world.remove(c);
+			}
 		}
 	}
-	
+
 	public void handleBarMotion() {
 		if (Math.random() > 0.5)
 			bar.setPosition(bar.getX()-5, bar.getY()+4);
 		else
 			bar.setPosition(bar.getX()+5, bar.getY()+4);
 	}
-	
+
 	public void handleScreenMotion() {
 		float x = flame_one.getX();
 		float y = flame_one.getY();
@@ -111,29 +117,29 @@ public class GameDisplay extends PApplet {
 		else if (prevXPos >= x) {
 			bgXPos += (prevXPos-x)*scale;
 		}
-		
+
 		if (prevYPos >= y) {
 			bgYPos += (prevYPos-y)*scale;
 		}
 		else if (prevYPos <= y) {
 			bgYPos -= (y-prevYPos)*scale;
 		}
-		
+
 		prevXPos = x;
 		prevYPos = y;
 	}
 
 	public void normalSetup() {
 		right_brow = new FBox(10,10);
-		//right_brow.attachImage(right_browImg);
+		right_brow.attachImage(right_browImg);
 		right_brow.setPosition(194+8+10+3, 410);
 		right_brow.setStatic(true);
 
 		left_brow = new FBox(10,10);
-		//left_brow.attachImage(left_browImg);
+		left_brow.attachImage(left_browImg);
 		left_brow.setPosition(194-8+10+3,410);
-		left_brow.setVelocity(-550f, 0);
-		//left_brow.setStatic(true);
+		//left_brow.setVelocity(-550f, 0);
+		left_brow.setStatic(true);
 
 		flame_one = new FBox(10,10);
 		flame_one.attachImage(flame_oneImg);
@@ -143,30 +149,30 @@ public class GameDisplay extends PApplet {
 		prevYPos = flame_one.getY();
 
 		flame_two = new FBox(10,10);
-		//flame_two.attachImage(flame_oneImg);
+		flame_two.attachImage(flame_oneImg);
 		flame_two.setPosition(207+3, 405);
 		flame_two.setStatic(true);
-		
+
 		FBox temp = new FBox(50, 50);
 		temp.setPosition(189, 489);
 		temp.setStatic(true);
-		
+
 		bar = new FBox(10,10);
 		bar.attachImage(barImg);
 		bar.setPosition(200,50);
 		bar.setStatic(true);
-		
+
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
-		
+
 		FRevoluteJoint left_joint = new FRevoluteJoint(left_brow, temp);
 		//left_joint.setEnableLimit(true);
 		left_joint.setEnableMotor(true);
 		left_joint.setMotorSpeed(200f);
 		left_joint.setAnchor(temp.getX(), temp.getY());
-		
+
 		//FRevoluteJoint right_joint = new FRevoluteJoint(right_brow, flame_two);
-		
+
 
 		// world configuration
 		world = new FWorld();
@@ -176,10 +182,10 @@ public class GameDisplay extends PApplet {
 		world.add(right_brow);
 		world.add(flame_one);
 		world.add(flame_two);
-		world.add(temp);
+		//world.add(temp);
 		world.add(bar);
-		
-		world.add(left_joint);
+
+		//world.add(left_joint);
 		//world.add(right_joint);
 	}
 
@@ -290,27 +296,27 @@ public class GameDisplay extends PApplet {
 
 	public void transformBrow() {
 
-		/*world.remove(right_brow);
+		world.remove(right_brow);
 		world.remove(left_brow);
 
 		right_brow = new FBox(10,10);
 		right_brow.attachImage(right_browImg);
-		right_brow.setPosition(194+100, 404);
+		right_brow.setPosition(194+98, 404+46);
 		right_brow.setRotation(radians(60));
 		right_brow.setStatic(true);
 
 		left_brow = new FBox(10,10);
 		left_brow.attachImage(left_browImg);
-		left_brow.setPosition(194-100,409);
+		left_brow.setPosition(194-80,438);
 		left_brow.setRotation(radians(-60));
 		left_brow.setStatic(true);
 
 		world.add(left_brow);
 		world.add(right_brow);
 
-		flame_one.setPosition(183, 418-42);
+		/*flame_one.setPosition(183, 418-42);
 		flame_two.setPosition(207, 418-42);*/
-		
+
 		//left_brow.setRotation(radians(90));
 
 	}
@@ -394,16 +400,16 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void mousePressed() {		
-		System.out.println(mouseX+" "+mouseY);
+		//System.out.println(mouseX+" "+mouseY);
 		//transformBrow();
-		/*if (!isTransformed) {
+		if (!isTransformed) {
 			transformBrow();
 			isTransformed = true;
 		}
 		else {
 			normalSetup();
 			isTransformed = false;
-		}*/
+		}
 	}
 
 }
