@@ -23,7 +23,7 @@ public class GameDisplay extends PApplet {
 	private boolean left, right, up, down;
 	private int mussle_num = 0;
 	private int hor_speed = 7, vert_speed = 7;
-	private boolean isTransformed = false;
+	private boolean isTransformed = false, switchBg = true;
 	private float prevXPos, prevYPos;
 	private ArrayList<FCircle> bullets = new ArrayList<FCircle>();
 
@@ -69,10 +69,10 @@ public class GameDisplay extends PApplet {
 
 	public void draw() {
 		handleScreenMotion();
-		//background(120);
+		background(120);
 		//handleBarMotion();
-		image(bg, bgXPos, bgYPos);		
-		image(bg, backXPos, backYPos);		
+		image(bg, bgXPos, bgYPos+(0/600f)*height);		
+		image(bg, bgXPos, backYPos-(450/600f)*height);		
 		if (frameCount % 250 == 200) {
 			cloudXPos = (int)(Math.random()*(width-120));
 			cloudYPos = 0;
@@ -85,9 +85,6 @@ public class GameDisplay extends PApplet {
 
 		handleShooterMovement();
 		handleBulletMovement();
-
-		//flame_one.dettachImage();
-		//flame_two.dettachImage();
 
 		world.draw();
 		world.step();
@@ -119,28 +116,18 @@ public class GameDisplay extends PApplet {
 		float y = flame_one.getY();
 		float scale = 1f;
 		float cloudscale = 3.2f;
-		if (prevXPos <= x) {
-			bgXPos -= (x-prevXPos)*scale;
-			cloudXPos -= (x-prevXPos)*scale*2;
-		}		
-		else if (prevXPos >= x) {
-			bgXPos += (prevXPos-x)*scale;
-			cloudXPos += (prevXPos-x)*scale*2;
-		}
 
-		/*if (prevYPos >= y) {
-			bgYPos += (prevYPos-y)*scale;
+		float bgOffset = (450f/600)*height;
+		if (switchBg && Math.abs(backYPos-(-0.25f*height+bgOffset)) <= 2*scale) {
+			bgYPos = -height+bgOffset;
+			switchBg = false;
 		}
-		else if (prevYPos <= y) {
-			bgYPos -= (y-prevYPos)*scale;
-		}*/
-		/*if (bgYPos >= -15) {
-			bgXPos = -0.25f*width;
-			bgYPos = -0.25f*height;
-		}*/
-
-		bgYPos += 2*scale;
-		backYPos += 2*scale;
+		if (!switchBg && Math.abs(bgYPos-(-0.25f*height)) <= 2*scale) {
+			backYPos = -height;
+			switchBg = true;
+		}
+		bgYPos += 4*scale;
+		backYPos += 4*scale;
 		cloudYPos += 2*cloudscale;
 
 		prevXPos = x;
@@ -177,8 +164,7 @@ public class GameDisplay extends PApplet {
 
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
-		backXPos = -0.25f*width;
-		backYPos = -1f*height;
+		backYPos = -height;
 		cloudXPos = 0;
 		cloudYPos = 0;
 
