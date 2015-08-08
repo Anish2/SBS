@@ -13,7 +13,7 @@ public class ShooterDisplay extends PApplet {
 
 	public void setup() {		
 		size(400, 600);
-		// size(displayWidth, displayHeight); // for android
+		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
 		base = loadImage("Brow Fighte base.png");
 		title = loadImage("Brow Fighter title.png");
