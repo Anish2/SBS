@@ -1,12 +1,12 @@
 package code;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import processing.core.PApplet;
 import processing.core.PImage;
 import fisica.FBox;
 import fisica.FCircle;
-import fisica.FRevoluteJoint;
 import fisica.FWorld;
 import fisica.Fisica;
 
@@ -28,8 +28,8 @@ public class GameDisplay extends PApplet {
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		//size(400, 600);
-		size(500, 750);
+		size(400, 600);
+		//size(500, 750);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
 		left_browImg = loadImage("brow BBBB L.png");
@@ -73,8 +73,8 @@ public class GameDisplay extends PApplet {
 
 		image(bg, bgXPos, bgYPos+(0/600f)*height);		
 		image(bg, bgXPos, backYPos-(450/600f)*height);		
-		if (frameCount % 250 == 200) {
-			cloudXPos = (int)(Math.random()*(width-(120f/400)*width));
+		if (frameCount % 150 == 125) {
+			cloudXPos = randInt(-50, width);
 			cloudYPos = (-250f/600)*height;
 			image(cloud, cloudXPos, cloudYPos);
 		}
@@ -90,6 +90,19 @@ public class GameDisplay extends PApplet {
 		world.step();
 		mussle_num++;
 
+	}
+	
+	public static int randInt(int min, int max) {
+
+	    // NOTE: Usually this should be a field rather than a method
+	    // variable so that it is not re-seeded every call.
+	    Random rand = new Random();
+
+	    // nextInt is normally exclusive of the top value,
+	    // so add 1 to make it inclusive
+	    int randomNum = rand.nextInt((max - min) + 1) + min;
+
+	    return randomNum;
 	}
 
 	public void handleBulletMovement() {
@@ -149,11 +162,6 @@ public class GameDisplay extends PApplet {
 		flame_two.attachImage(flame_oneImg);
 		flame_two.setPosition(((207+3)/400f)*width, (405f/600)*height);
 		flame_two.setStatic(true);
-
-		/*bar = new FBox(10,10);
-		bar.attachImage(barImg);
-		bar.setPosition(200,50);
-		bar.setStatic(true);*/
 
 		bgXPos = -0.25f*width;
 		bgYPos = -0.25f*height;
@@ -216,7 +224,7 @@ public class GameDisplay extends PApplet {
 			bullet = makeBall(flame_two.getX()-(2f/400)*width, flame_two.getY()-(126f/600)*height);
 			world.add(bullet);
 			flame_two.dettachImage();
-			temp2.resize((int) ((1f/400)*width), (int) ((1f/600)*height));
+			temp2.resize(1, 1);
 			flame_two.attachImage(temp2);	
 			if (temp2 == flame_twoImg) {
 				temp2 = flame_threeImg;
@@ -237,7 +245,7 @@ public class GameDisplay extends PApplet {
 			bullet = makeBall(flame_one.getX()-(2f/400)*width, flame_one.getY()-(126f/600)*height);
 			world.add(bullet);
 			flame_one.dettachImage();
-			temp1.resize((int) ((1f/400)*width), (int) ((1f/600)*height));
+			temp1.resize(1, 1);
 			flame_one.attachImage(temp1);
 
 			if (temp1 == flame_twoImg) {
@@ -260,9 +268,7 @@ public class GameDisplay extends PApplet {
 	public FCircle makeBall(float xPos, float yPos) {
 		FCircle b = new FCircle(15);
 		b.setPosition(xPos, yPos);
-		//b.setForce(-9.8f, -9.8f);
 		b.setNoStroke();
-		//b.setVelocity(0f, velocity);
 		b.setStatic(true);
 		b.attachImage(bullets1);
 		return b;
@@ -276,24 +282,24 @@ public class GameDisplay extends PApplet {
 		if (isTransformed) {
 			right_brow = new FBox(10,10);
 			right_brow.attachImage(right_browImg);
-			right_brow.setPosition(flame_one.getX()+28, flame_one.getY()+5);
+			right_brow.setPosition(flame_one.getX()+(28f/400)*width, flame_one.getY()+(5f/600)*height);
 			right_brow.setStatic(true);
 
 			left_brow = new FBox(10,10);
 			left_brow.attachImage(left_browImg);
-			left_brow.setPosition(flame_two.getX()-11,flame_two.getY()+5);
+			left_brow.setPosition(flame_two.getX()-(11f/400)*width, flame_two.getY()+(5f/600)*height);
 			left_brow.setStatic(true);
 		}
 		else {
 			right_brow = new FBox(10,10);
 			right_brow.attachImage(right_browImg);
-			right_brow.setPosition(flame_one.getX()+105, flame_one.getY()+45);
+			right_brow.setPosition(flame_one.getX()+(105f/400)*width, flame_one.getY()+(45f/600)*height);
 			right_brow.setRotation(radians(60));
 			right_brow.setStatic(true);
 
 			left_brow = new FBox(10,10);
 			left_brow.attachImage(left_browImg);
-			left_brow.setPosition(flame_two.getX()-96,flame_two.getY()+33);
+			left_brow.setPosition(flame_two.getX()-(96f/400)*width, flame_two.getY()+(33f/600)*height);
 			left_brow.setRotation(radians(-60));
 			left_brow.setStatic(true);			
 		}
