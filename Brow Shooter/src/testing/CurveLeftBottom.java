@@ -30,25 +30,26 @@ public class CurveLeftBottom extends PApplet {
 		world.setGravity(0, 0);
 		
 		//addMore(5, 0, 150, 200);
-		addMore(1, -100, 150, 200);
+		addMore(1, 550, 100, 0);
 	}
 
-	public void draw() {		
+	public void draw() {
 		background(0);
-		float hor_speed = 15;
-		float vert_speed = 2;
+		float hor_speed = 10f;
+		float vert_speed = 2*(hor_speed/15);
+		
 		for (int i = 0; i < bottom.size(); i++) {			
-			top.get(i).setPosition(top.get(i).getX()+hor_speed, top.get(i).getY()+vert_speed);
-			bottom.get(i).setPosition(bottom.get(i).getX()+hor_speed, bottom.get(i).getY()+vert_speed);
+			top.get(i).setPosition(top.get(i).getX() - hor_speed, top.get(i).getY() + vert_speed);
+			bottom.get(i).setPosition(bottom.get(i).getX() - hor_speed, bottom.get(i).getY() + vert_speed);
 			
-			top.get(i).setRotation(top.get(i).getRotation()+radians(1f));
-			bottom.get(i).setRotation(bottom.get(i).getRotation()+radians(1f));
-			hor_speed -= 0.75;
-			vert_speed += 1;
+			top.get(i).setRotation(top.get(i).getRotation() - radians(1f*(hor_speed/15)));
+			bottom.get(i).setRotation(bottom.get(i).getRotation() - radians(1f)*(hor_speed/15));
+			hor_speed -= 0.75*(hor_speed/15);
+			vert_speed += 1*(hor_speed/15);
 		}
 		
 		if (bottom.size() < 10 && bottom.get(bottom.size()-1).getX() >= 0) {
-			addMore(1, -100, 150, 200);
+			addMore(1, 550, 100, 0);
 		}
 
 		world.draw();
@@ -73,7 +74,7 @@ public class CurveLeftBottom extends PApplet {
 			
 			world.add(bottomTemp);
 			world.add(topTemp);
-			xCounter -= 100;
+			xCounter += 100;
 		}
 	}
 

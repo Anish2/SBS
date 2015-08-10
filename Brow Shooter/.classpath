@@ -5,5 +5,9 @@
 	<classpathentry kind="lib" path="libs/core.jar"/>
 	<classpathentry kind="lib" path="libs/fisica.jar"/>
 	<classpathentry kind="lib" path="libs/JBox2D-2.0.1-b250-Library.jar"/>
+	<classpathentry kind="lib" path="libs/jogl-all.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen-rt-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="libs/jogl-all-natives-windows-i586.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

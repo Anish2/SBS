@@ -8,7 +8,7 @@ import fisica.FBox;
 import fisica.FWorld;
 import fisica.Fisica;
 
-public class CurveRightTop extends PApplet {
+public class CurveRightBottom extends PApplet {
 
 	private FWorld world;
 	private PImage bottomImg, topImg;
@@ -30,26 +30,25 @@ public class CurveRightTop extends PApplet {
 		world.setGravity(0, 0);
 		
 		//addMore(5, 0, 150, 200);
-		addMore(1, -100, 500, 180);
+		addMore(1, -100, 150, 200);
 	}
 
-	public void draw() {
+	public void draw() {		
 		background(0);
 		float hor_speed = 15;
 		float vert_speed = 2;
-		
 		for (int i = 0; i < bottom.size(); i++) {			
-			top.get(i).setPosition(top.get(i).getX()+hor_speed, top.get(i).getY()-vert_speed);
-			bottom.get(i).setPosition(bottom.get(i).getX()+hor_speed, bottom.get(i).getY()-vert_speed);
+			top.get(i).setPosition(top.get(i).getX()+hor_speed, top.get(i).getY()+vert_speed);
+			bottom.get(i).setPosition(bottom.get(i).getX()+hor_speed, bottom.get(i).getY()+vert_speed);
 			
-			top.get(i).setRotation(top.get(i).getRotation() - radians(1f));
-			bottom.get(i).setRotation(bottom.get(i).getRotation() - radians(1f));
+			top.get(i).setRotation(top.get(i).getRotation()+radians(1f));
+			bottom.get(i).setRotation(bottom.get(i).getRotation()+radians(1f));
 			hor_speed -= 0.75;
 			vert_speed += 1;
 		}
 		
 		if (bottom.size() < 10 && bottom.get(bottom.size()-1).getX() >= 0) {
-			addMore(1, -100, 500, 180);
+			addMore(1, -100, 150, 200);
 		}
 
 		world.draw();

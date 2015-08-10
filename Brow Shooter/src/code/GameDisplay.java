@@ -25,11 +25,14 @@ public class GameDisplay extends PApplet {
 	private float prevXPos, prevYPos;
 	private ArrayList<FCircle> bullets = new ArrayList<FCircle>();
 
+	private PImage bottomImg, topImg;
+	private ArrayList<FBox> bottom, top;
+
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		size(400, 600);
-		//size(500, 750);
+		size(400, 600, P2D);
+		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
 		left_browImg = loadImage("brow BBBB L.png");
@@ -64,10 +67,16 @@ public class GameDisplay extends PApplet {
 		bg.resize((int)(width*1.5), (int)(height*1.5));
 		cloud.resize((int)(width*0.75), (int)(height*0.75));
 
+		bottomImg = loadImage("brow_scissors/1.png");
+		topImg = loadImage("brow_scissors/2.png");
+		bottomImg.resize(width/4, height/4);
+		topImg.resize(width/4,  height/4);
+
 		normalSetup();
 	}
 
 	public void draw() {
+		//System.out.println(bullets.size()+" "+bottom.size());		
 		handleScreenMotion();
 		background(120);
 
@@ -85,24 +94,78 @@ public class GameDisplay extends PApplet {
 
 		handleShooterMovement();
 		handleBulletMovement();
+		if (frameCount % 250 == 0) {
+			for (int i = 0; i < bottom.size(); i++) {
+				world.remove(bottom.get(i));
+				world.remove(top.get(i));				
+			}
+			bottom.clear();			
+			top.clear();			
+			addMore(1, (550f/400)*width, (400f/600)*height, 0);
+			handleScissorMotion();
+		}
+		else {
+			handleScissorMotion();
+		}
 
 		world.draw();
 		world.step();
 		mussle_num++;
 
 	}
-	
+
+	public void addMore(int num, float xCounter, float y, int rotation) {
+		for (int i = 0; i < num; i++) {			
+			FBox bottomTemp = new FBox(10, 10);
+			bottomTemp.setStatic(true);
+			bottomTemp.attachImage(bottomImg);
+			bottomTemp.setPosition(xCounter, y);
+			bottomTemp.setRotation(radians(rotation));
+
+			FBox topTemp = new FBox(10, 10);
+			topTemp.setStatic(true);
+			topTemp.attachImage(topImg);
+			topTemp.setPosition(xCounter, y);
+			topTemp.setRotation(radians(rotation));
+			bottom.add(bottomTemp);
+			top.add(topTemp);
+
+			world.add(bottomTemp);
+			world.add(topTemp);
+			xCounter += (100f/400)*width;
+		}
+	}
+
 	public static int randInt(int min, int max) {
 
-	    // NOTE: Usually this should be a field rather than a method
-	    // variable so that it is not re-seeded every call.
-	    Random rand = new Random();
+		// NOTE: Usually this should be a field rather than a method
+		// variable so that it is not re-seeded every call.
+		Random rand = new Random();
 
-	    // nextInt is normally exclusive of the top value,
-	    // so add 1 to make it inclusive
-	    int randomNum = rand.nextInt((max - min) + 1) + min;
+		// nextInt is normally exclusive of the top value,
+		// so add 1 to make it inclusive
+		int randomNum = rand.nextInt((max - min) + 1) + min;
 
-	    return randomNum;
+		return randomNum;
+	}
+
+	public void handleScissorMotion() {
+		float hor_speed = (8f/400)*width;
+		float vert_speed = (2f/600)*height;
+
+		for (int i = 0; i < bottom.size(); i++) {			
+			top.get(i).setPosition(top.get(i).getX() - hor_speed, top.get(i).getY() - vert_speed);
+			bottom.get(i).setPosition(bottom.get(i).getX() - hor_speed, bottom.get(i).getY() - vert_speed);
+
+			top.get(i).setRotation(top.get(i).getRotation() + radians(0.8f));
+			bottom.get(i).setRotation(bottom.get(i).getRotation() + radians(0.8f));
+			hor_speed -= (0.85f/400)*width;
+			vert_speed += (2f/600)*height;
+		}
+
+		if (bottom.size() < 8 && bottom.get(bottom.size()-1).getX() >= 0) {
+			addMore(1, (550f/400)*width, (400f/600)*height, 0);
+		}
 	}
 
 	public void handleBulletMovement() {
@@ -180,6 +243,11 @@ public class GameDisplay extends PApplet {
 		world.add(flame_one);
 		world.add(flame_two);
 		//world.add(bar);
+
+		bottom = new ArrayList<FBox>();
+		top = new ArrayList<FBox>();
+
+		addMore(1, 550, 400, 0);
 
 	}
 
@@ -312,7 +380,31 @@ public class GameDisplay extends PApplet {
 
 	public void handleShooterMovement() {
 
-		if(left && !right) {
+		/*float fX = flame_one.getX();
+		float fY = flame_one.getY();
+		flame_one.setPosition(mouseX + (-8f/400)*width, mouseY + (-82f/600)*height);
+		float deltaX = flame_one.getX() - fX;
+		float deltaY = flame_one.getY() - fY;
+		left_brow.setPosition(left_brow.getX() + deltaX, left_brow.getY() + deltaY);
+		right_brow.setPosition(right_brow.getX() + deltaX, right_brow.getY() + deltaY);		
+		flame_two.setPosition(flame_two.getX() + deltaX, flame_two.getY() + deltaY);*/
+		
+		// physical position of flame one
+		float fx = flame_one.getX() + (8f/400)*width;
+		float fy = flame_one.getY() + (85f/600)*height;
+		float deltax = mouseX - fx;
+		float deltay = mouseY - fy;
+		if (Math.abs(deltax) > 0.1 && Math.abs(deltay) > 0.1) {
+			float y = (deltay/5f);
+			//float x = (Math.abs((y*deltax)/deltay) * deltax)/(-deltax);	
+			float x = deltax/5f;
+			flame_one.setPosition(flame_one.getX() + x, flame_one.getY() + y);
+			left_brow.setPosition(left_brow.getX() + x, left_brow.getY() + y);
+			right_brow.setPosition(right_brow.getX() + x, right_brow.getY() + y);		
+			flame_two.setPosition(flame_two.getX() + x, flame_two.getY() + y);
+		}
+
+		/*if(left && !right) {
 			//System.out.println("left");
 			left_brow.setPosition(left_brow.getX() - hor_speed, left_brow.getY());
 			right_brow.setPosition(right_brow.getX() - hor_speed, right_brow.getY());
@@ -336,7 +428,7 @@ public class GameDisplay extends PApplet {
 			right_brow.setPosition(right_brow.getX(), right_brow.getY() - vert_speed);
 			flame_one.setPosition(flame_one.getX(), flame_one.getY() - vert_speed);
 			flame_two.setPosition(flame_two.getX(), flame_two.getY() - vert_speed);
-		}
+		}*/
 
 	}
 
@@ -388,8 +480,10 @@ public class GameDisplay extends PApplet {
 		}
 	}
 
-	public void mousePressed() {		
+	public void mousePressed() {
 		//System.out.println(mouseX+" "+mouseY);
+		//System.out.println(flame_one.getX()+" "+flame_one.getY()+"\n");
+
 		//transformBrow();
 		if (!isTransformed) {
 			transformBrow();

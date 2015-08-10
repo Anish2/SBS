@@ -8,49 +8,45 @@ import fisica.FBox;
 import fisica.FWorld;
 import fisica.Fisica;
 
-public class CurveRightTop extends PApplet {
+public class ChargingScissor extends PApplet {
 
 	private FWorld world;
 	private PImage bottomImg, topImg;
 	private ArrayList<FBox> bottom, top;
+	private float speed = 2f;
 
 	public void setup() {
 		size(400, 600);
 		bottomImg = loadImage("brow_scissors/1.png");
 		topImg = loadImage("brow_scissors/2.png");
 
-		bottomImg.resize(width/4, height/4);
-		topImg.resize(width/4,  height/4);
+		bottomImg.resize(width/2, height/2);
+		topImg.resize(width/2,  height/2);
 		Fisica.init(this);
-		
+
 		bottom = new ArrayList<FBox>();
 		top = new ArrayList<FBox>();
 		
 		world = new FWorld();
 		world.setGravity(0, 0);
 		
-		//addMore(5, 0, 150, 200);
-		addMore(1, -100, 500, 180);
+		
+		addMore(1, 100, -10, -83);
 	}
 
 	public void draw() {
 		background(0);
-		float hor_speed = 15;
-		float vert_speed = 2;
 		
-		for (int i = 0; i < bottom.size(); i++) {			
-			top.get(i).setPosition(top.get(i).getX()+hor_speed, top.get(i).getY()-vert_speed);
-			bottom.get(i).setPosition(bottom.get(i).getX()+hor_speed, bottom.get(i).getY()-vert_speed);
-			
-			top.get(i).setRotation(top.get(i).getRotation() - radians(1f));
-			bottom.get(i).setRotation(bottom.get(i).getRotation() - radians(1f));
-			hor_speed -= 0.75;
-			vert_speed += 1;
+		//speed = 2;
+		for (int i = 0; i < bottom.size(); i++) {
+			top.get(i).setPosition(top.get(i).getX(), top.get(i).getY()+speed);
+			bottom.get(i).setPosition(bottom.get(i).getX(), bottom.get(i).getY()+speed);
 		}
+		speed += 0.5f;
 		
-		if (bottom.size() < 10 && bottom.get(bottom.size()-1).getX() >= 0) {
-			addMore(1, -100, 500, 180);
-		}
+		/*if (bottom.size() < 10 && bottom.get(bottom.size()-1).getY() >= 0) {
+			addMore(1);
+		}*/
 
 		world.draw();
 		world.step();
@@ -74,7 +70,7 @@ public class CurveRightTop extends PApplet {
 			
 			world.add(bottomTemp);
 			world.add(topTemp);
-			xCounter -= 100;
+			xCounter += 100;
 		}
 	}
 
