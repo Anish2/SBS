@@ -1,5 +1,7 @@
 package code;
 
+import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Float;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -31,7 +33,7 @@ public class GameDisplay extends PApplet {
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		size(400, 600, P2D);
+		size(400, 600);
 		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
@@ -76,7 +78,9 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void draw() {
-		//System.out.println(bullets.size()+" "+bottom.size());		
+		/*if (frameCount >= 50)
+			return;*/
+		//System.out.println(bullets.size()+" "+world.getBodyCount()+" "+top.size());		
 		handleScreenMotion();
 		background(120);
 
@@ -93,6 +97,7 @@ public class GameDisplay extends PApplet {
 		//noStroke();
 
 		handleShooterMovement();
+		handleCollisions();
 		handleBulletMovement();
 		if (frameCount % 250 == 0) {
 			for (int i = 0; i < bottom.size(); i++) {
@@ -104,7 +109,7 @@ public class GameDisplay extends PApplet {
 			addMore(1, (550f/400)*width, (400f/600)*height, 0);
 			handleScissorMotion();
 		}
-		else {
+		else {			
 			handleScissorMotion();
 		}
 
@@ -112,6 +117,40 @@ public class GameDisplay extends PApplet {
 		world.step();
 		mussle_num++;
 
+	}
+	
+	public void handleCollisions() {		
+		for (FCircle bullet: bullets) {
+			for (FBox scissor: bottom) {
+				if (collision(bullet, scissor)) {
+					scissor.dettachImage();					
+					System.out.println("collided");
+				}
+			}
+		}
+		
+	}
+
+	public boolean collision(FCircle bullet, FBox scissor) {
+		// bullet mapping
+		Point2D.Float topLeftBullet =  new Point2D.Float(bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((472-281.4f)/600f)*height);
+		topLeftBullet.y *= -1;
+		Point2D.Float bottomRightBullet =  new Point2D.Float(bullet.getX()+((215-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height);
+		bottomRightBullet.y *= -1;
+		
+		// scissor mapping
+		Point2D.Float bottomRightScissor =  new Point2D.Float(scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height);
+		bottomRightScissor.y *= -1;
+		Point2D.Float topLeftScissor =  new Point2D.Float(scissor.getX()-(15f/400f)*width, scissor.getY()+(77f/600f)*height);
+		topLeftScissor.y *= -1;
+		
+		return intersects(topLeftBullet, bottomRightBullet, topLeftScissor, bottomRightScissor);
+	}
+
+	public boolean intersects(Point2D.Float topLeftBullet, Point2D.Float bottomRightBullet, Point2D.Float topLeftScissor, Point2D.Float bottomRightScissor) {
+		if (topLeftBullet.x >= bottomRightScissor.x || topLeftScissor.x >= bottomRightBullet.x || topLeftBullet.y <= bottomRightScissor.y || topLeftScissor.y <= bottomRightBullet.y)
+			return false;
+		return true;
 	}
 
 	public void addMore(int num, float xCounter, float y, int rotation) {
@@ -481,18 +520,22 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void mousePressed() {
-		//System.out.println(mouseX+" "+mouseY);
-		//System.out.println(flame_one.getX()+" "+flame_one.getY()+"\n");
-
+		System.out.println("Mouse "+mouseX+" "+mouseY);
+		System.out.println("Flame one "+flame_one.getX()+" "+flame_one.getY());
+		System.out.println("Flame two "+flame_two.getX()+" "+flame_two.getY());
+		System.out.println("Top "+top.get(0).getX()+" "+top.get(0).getY()+" "+degrees(top.get(0).getRotation()));
+		System.out.println("Bottom "+bottom.get(0).getX()+" "+bottom.get(0).getY()+" "+degrees(bottom.get(0).getRotation())+"\n");
+		//System.out.println("Bullet 2last "+bullets.get(bullets.size()-2).getX()+" "+bullets.get(bullets.size()-2).getY());
+		//System.out.println("Bullet 1last "+bullets.get(bullets.size()-1).getX()+" "+bullets.get(bullets.size()-1).getY()+"\n");
 		//transformBrow();
-		if (!isTransformed) {
+		/*if (!isTransformed) {
 			transformBrow();
 			isTransformed = true;
 		}
 		else {
 			transformBrow();
 			isTransformed = false;
-		}
+		}*/
 	}
 
 }
