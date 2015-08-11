@@ -9,5 +9,7 @@
 	<classpathentry kind="lib" path="libs/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="libs/gluegen-rt-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="libs/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

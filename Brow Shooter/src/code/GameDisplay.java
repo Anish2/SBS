@@ -1,7 +1,5 @@
 package code;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Float;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -33,7 +31,7 @@ public class GameDisplay extends PApplet {
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		size(400, 600);
+		size(400, 600, P2D);
 		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
@@ -121,10 +119,12 @@ public class GameDisplay extends PApplet {
 	
 	public void handleCollisions() {		
 		for (FCircle bullet: bullets) {
-			for (FBox scissor: bottom) {
+			for (int i = 0; i < bottom.size(); i++) {
+				FBox scissor = bottom.get(i);
 				if (collision(bullet, scissor)) {
-					scissor.dettachImage();					
-					System.out.println("collided");
+					scissor.dettachImage();	
+					top.get(i).dettachImage();
+					//System.out.println("collided");
 				}
 			}
 		}
@@ -133,24 +133,77 @@ public class GameDisplay extends PApplet {
 
 	public boolean collision(FCircle bullet, FBox scissor) {
 		// bullet mapping
-		Point2D.Float topLeftBullet =  new Point2D.Float(bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((472-281.4f)/600f)*height);
-		topLeftBullet.y *= -1;
-		Point2D.Float bottomRightBullet =  new Point2D.Float(bullet.getX()+((215-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height);
-		bottomRightBullet.y *= -1;
+		float[] topLeftBullet = {bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((472-281.4f)/600f)*height};
+		//topLeftBullet.y *= -1;
+		float[] bottomRightBullet = {bullet.getX()+((215-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height};
+		//bottomRightBullet.y *= -1;
+		float[] topRightBullet = {bullet.getX()+((215-209.3f)/400f)*width, bullet.getY()+((472-281.4f)/600f)*height};
+		//topRightBullet.y *= -1;
+		float[] bottomLeftBullet = {bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height};
+		//bottomLeftBullet.y *= -1;
 		
 		// scissor mapping
-		Point2D.Float bottomRightScissor =  new Point2D.Float(scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height);
-		bottomRightScissor.y *= -1;
-		Point2D.Float topLeftScissor =  new Point2D.Float(scissor.getX()-(15f/400f)*width, scissor.getY()+(77f/600f)*height);
-		topLeftScissor.y *= -1;
+		float[] bottomRightScissor = {scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height};
+		//bottomRightScissor.y *= -1;
+		float[] bottomLeftScissor = {bottomRightScissor[0]-(18f/400f)*width, bottomRightScissor[1]+(18f/600f)*height};
+		//bottomLeftScissor.y *= -1;
+		float[] topLeftScissor = {bottomLeftScissor[0]-(57f/400f)*width, bottomLeftScissor[1]-(43f/600f)*height};
+		//topLeftScissor.y *= -1;
+		float[] topRightScissor = {topLeftScissor[0]+(4f/400f)*width, topLeftScissor[1]-(8f/600f)*height};
 		
-		return intersects(topLeftBullet, bottomRightBullet, topLeftScissor, bottomRightScissor);
+		float[][] polyBullet = {topLeftBullet, bottomRightBullet, topRightBullet, bottomLeftBullet};
+		
+		float[][] polyScissor = {bottomRightScissor, bottomLeftScissor, topLeftScissor, topRightScissor};
+		
+		return isPolygonsIntersecting(polyBullet, polyScissor);
 	}
 
-	public boolean intersects(Point2D.Float topLeftBullet, Point2D.Float bottomRightBullet, Point2D.Float topLeftScissor, Point2D.Float bottomRightScissor) {
-		if (topLeftBullet.x >= bottomRightScissor.x || topLeftScissor.x >= bottomRightBullet.x || topLeftBullet.y <= bottomRightScissor.y || topLeftScissor.y <= bottomRightBullet.y)
-			return false;
-		return true;
+	public boolean isPolygonsIntersecting(float[][] polyBullet, float[][] polyScissor)
+	{
+	    for (int x=0; x<2; x++)
+	    {
+	        float[][] polygon = (x==0) ? polyBullet : polyScissor;
+
+	        for (int i1=0; i1<polygon.length; i1++)
+	        {
+	            int   i2 = (i1 + 1) % polygon.length;
+	            float[] p1 = polygon[i1];
+	            float[] p2 = polygon[i2];
+
+	            float[] normal = {p2[1] - p1[1], p1[0] - p2[0]};
+
+	            double minA = Double.MAX_VALUE;
+	            double maxA = Double.MIN_VALUE;
+
+	            for (float[] p : polyBullet)
+	            {
+	                double projected = normal[0] * p[0] + normal[1] * p[1];
+
+	                if (projected < minA)
+	                    minA = projected;
+	                if (projected > maxA)
+	                    maxA = projected;
+	            }
+
+	            double minB = Double.MAX_VALUE;
+	            double maxB = Double.MIN_VALUE;
+
+	            for (float[] p : polyScissor)
+	            {
+	                double projected = normal[0] * p[0] + normal[1] * p[1];
+
+	                if (projected < minB)
+	                    minB = projected;
+	                if (projected > maxB)
+	                    maxB = projected;
+	            }
+
+	            if (maxA < minB || maxB < minA)
+	                return false;
+	        }
+	    }
+
+	    return true;
 	}
 
 	public void addMore(int num, float xCounter, float y, int rotation) {
@@ -520,11 +573,11 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void mousePressed() {
-		System.out.println("Mouse "+mouseX+" "+mouseY);
+		/*System.out.println("Mouse "+mouseX+" "+mouseY);
 		System.out.println("Flame one "+flame_one.getX()+" "+flame_one.getY());
 		System.out.println("Flame two "+flame_two.getX()+" "+flame_two.getY());
 		System.out.println("Top "+top.get(0).getX()+" "+top.get(0).getY()+" "+degrees(top.get(0).getRotation()));
-		System.out.println("Bottom "+bottom.get(0).getX()+" "+bottom.get(0).getY()+" "+degrees(bottom.get(0).getRotation())+"\n");
+		System.out.println("Bottom "+bottom.get(0).getX()+" "+bottom.get(0).getY()+" "+degrees(bottom.get(0).getRotation())+"\n");*/
 		//System.out.println("Bullet 2last "+bullets.get(bullets.size()-2).getX()+" "+bullets.get(bullets.size()-2).getY());
 		//System.out.println("Bullet 1last "+bullets.get(bullets.size()-1).getX()+" "+bullets.get(bullets.size()-1).getY()+"\n");
 		//transformBrow();
