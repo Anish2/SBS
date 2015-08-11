@@ -72,16 +72,18 @@ public class ScissorCollisionData extends PApplet {
 		bottomTemp.setStatic(true);
 		bottomTemp.attachImage(bottomImg);
 		bottomTemp.setPosition(200, 200);
-		bottomTemp.setRotation(radians(315));
+		bottomTemp.setRotation(radians(-90));
 
 		FBox topTemp = new FBox(10, 10);
 		topTemp.setStatic(true);
 		topTemp.attachImage(topImg);
 		topTemp.setPosition(200, 200);
-		topTemp.setRotation(radians(315));
+		topTemp.setRotation(radians(-90));
 		
 		world.add(bottomTemp);
 		world.add(topTemp);
+		
+		System.out.println(degrees(bottomTemp.getRotation()));
 	}
 	
 	public void draw() {
@@ -91,7 +93,7 @@ public class ScissorCollisionData extends PApplet {
 	}
 	
 	public void mousePressed() {
-		System.out.println(mouseX+" "+mouseY);
+		System.out.println(mouseX+" "+mouseY);		
 	}
 
 }

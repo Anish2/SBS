@@ -31,7 +31,7 @@ public class GameDisplay extends PApplet {
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		size(400, 600);
+		size(400, 600, P2D);
 		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
@@ -130,7 +130,7 @@ public class GameDisplay extends PApplet {
 		mussle_num++;
 
 	}
-	
+
 	public void clearScissors() {
 		for (int i = 0; i < bottom.size(); i++) {
 			world.remove(bottom.get(i));
@@ -139,7 +139,7 @@ public class GameDisplay extends PApplet {
 		bottom.clear();			
 		top.clear();
 	}
-	
+
 	public void handleCollisions() {		
 		for (FCircle bullet: bullets) {
 			for (int i = 0; i < bottom.size(); i++) {
@@ -151,7 +151,7 @@ public class GameDisplay extends PApplet {
 				}
 			}
 		}
-		
+
 	}
 
 	public boolean collision(FCircle bullet, FBox scissor) {
@@ -164,69 +164,112 @@ public class GameDisplay extends PApplet {
 
 		float[] bottomLeftBullet = {bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height};
 
-		
+		float[] bottomLeftScissor = null, topLeftScissor = null, bottomRightScissor = null, topRightScissor = null;
 		// scissor mapping
-		float[] bottomRightScissor = {scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height};
+		float angle = degrees(scissor.getRotation());
+		if (angle < 0) angle += 360f;
+		if (angle > 0 && angle < 90) { // case 1
+			bottomRightScissor = new float[] {scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height};
 
-		float[] bottomLeftScissor = {bottomRightScissor[0]-(18f/400f)*width, bottomRightScissor[1]+(18f/600f)*height};
+			bottomLeftScissor = new float[]{bottomRightScissor[0]-(18f/400f)*width, bottomRightScissor[1]+(18f/600f)*height};
 
-		float[] topLeftScissor = {bottomLeftScissor[0]-(57f/400f)*width, bottomLeftScissor[1]-(43f/600f)*height};
+			topLeftScissor = new float[]{bottomLeftScissor[0]-(57f/400f)*width, bottomLeftScissor[1]-(43f/600f)*height};
 
-		float[] topRightScissor = {topLeftScissor[0]+(4f/400f)*width, topLeftScissor[1]-(8f/600f)*height};
+			topRightScissor = new float[]{topLeftScissor[0]+(4f/400f)*width, topLeftScissor[1]-(8f/600f)*height};
+		}
+		else if (Math.abs(angle) <= 1) { // case 2
+			bottomRightScissor = new float[] {scissor.getX()+(36f/400f)*width, scissor.getY()+(71f/600f)*height};
+
+			bottomLeftScissor = new float[] {scissor.getX()+(41f/400f)*width, scissor.getY()+(45f/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+(-36f/400f)*width, scissor.getY()+(62f/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+(-36f/400f)*width, scissor.getY()+(71f/600f)*height};
+		}
+		/*else if (Math.abs(90-angle) <= 1) { // case 3
+
+		}
+		else if (angle > 90 && angle < 180) { // case 4
+			
+		}
+		else if (Math.abs(angle-180) <= 1) { //case 5
+			
+		}
+		else if (angle > 180 && angle < 270) { // case 6
+			
+		}*/
+		else if (Math.abs(angle-270) <= 10) { // case 7
+			bottomRightScissor = new float[] {scissor.getX()+(73f/400f)*width, scissor.getY()+(-37f/600f)*height};
+
+			bottomLeftScissor = new float[] {scissor.getX()+(48f/400f)*width, scissor.getY()+(-48f/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+(65f/400f)*width, scissor.getY()+(33f/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+(71f/400f)*width, scissor.getY()+(34f/600f)*height};
+		}
+		else { // case 8
+			bottomRightScissor = new float[] {scissor.getX()+(74f/400f)*width, scissor.getY()+(25f/600f)*height};
+
+			bottomLeftScissor = new float[] {scissor.getX()+(65f/400f)*width, scissor.getY()+(1f/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+(19f/400f)*width, scissor.getY()+(69f/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+(25f/400f)*width, scissor.getY()+(73f/600f)*height};
+		}
 		
 		float[][] polyBullet = {topLeftBullet, bottomRightBullet, topRightBullet, bottomLeftBullet};
-		
+
 		float[][] polyScissor = {bottomRightScissor, bottomLeftScissor, topLeftScissor, topRightScissor};
-		
+
 		return isPolygonsIntersecting(polyBullet, polyScissor);
 	}
 
 	public boolean isPolygonsIntersecting(float[][] polyBullet, float[][] polyScissor)
 	{
-	    for (int x=0; x<2; x++)
-	    {
-	        float[][] polygon = (x==0) ? polyBullet : polyScissor;
+		for (int x=0; x<2; x++)
+		{
+			float[][] polygon = (x==0) ? polyBullet : polyScissor;
 
-	        for (int i1=0; i1<polygon.length; i1++)
-	        {
-	            int   i2 = (i1 + 1) % polygon.length;
-	            float[] p1 = polygon[i1];
-	            float[] p2 = polygon[i2];
+			for (int i1=0; i1<polygon.length; i1++)
+			{
+				int   i2 = (i1 + 1) % polygon.length;
+				float[] p1 = polygon[i1];
+				float[] p2 = polygon[i2];
 
-	            float[] normal = {p2[1] - p1[1], p1[0] - p2[0]};
+				float[] normal = {p2[1] - p1[1], p1[0] - p2[0]};
 
-	            double minA = Double.MAX_VALUE;
-	            double maxA = Double.MIN_VALUE;
+				double minA = Double.MAX_VALUE;
+				double maxA = Double.MIN_VALUE;
 
-	            for (float[] p : polyBullet)
-	            {
-	                double projected = normal[0] * p[0] + normal[1] * p[1];
+				for (float[] p : polyBullet)
+				{
+					double projected = normal[0] * p[0] + normal[1] * p[1];
 
-	                if (projected < minA)
-	                    minA = projected;
-	                if (projected > maxA)
-	                    maxA = projected;
-	            }
+					if (projected < minA)
+						minA = projected;
+					if (projected > maxA)
+						maxA = projected;
+				}
 
-	            double minB = Double.MAX_VALUE;
-	            double maxB = Double.MIN_VALUE;
+				double minB = Double.MAX_VALUE;
+				double maxB = Double.MIN_VALUE;
 
-	            for (float[] p : polyScissor)
-	            {
-	                double projected = normal[0] * p[0] + normal[1] * p[1];
+				for (float[] p : polyScissor)
+				{
+					double projected = normal[0] * p[0] + normal[1] * p[1];
 
-	                if (projected < minB)
-	                    minB = projected;
-	                if (projected > maxB)
-	                    maxB = projected;
-	            }
+					if (projected < minB)
+						minB = projected;
+					if (projected > maxB)
+						maxB = projected;
+				}
 
-	            if (maxA < minB || maxB < minA)
-	                return false;
-	        }
-	    }
+				if (maxA < minB || maxB < minA)
+					return false;
+			}
+		}
 
-	    return true;
+		return true;
 	}
 
 	public void addMoreCurveLeftTop(int num, float xCounter, float y, int rotation) {
@@ -250,7 +293,7 @@ public class GameDisplay extends PApplet {
 			xCounter += (100f/400)*width;
 		}
 	}
-	
+
 	public void addMoreStraightLineVertical(int num, float yCounter, float x, int rotation) {
 		for (int i = 0; i < num; i++) {			
 			FBox bottomTemp = new FBox(10, 10);
@@ -266,7 +309,7 @@ public class GameDisplay extends PApplet {
 			topTemp.setRotation(radians(rotation));
 			bottom.add(bottomTemp);
 			top.add(topTemp);
-			
+
 			world.add(bottomTemp);
 			world.add(topTemp);
 			yCounter -= (100f/600)*height;
@@ -285,14 +328,14 @@ public class GameDisplay extends PApplet {
 
 		return randomNum;
 	}
-	
+
 	public void handleStraightLineVertical() {
 		float speed = (5f/600)*height;
 		for (int i = 0; i < bottom.size(); i++) {
 			top.get(i).setPosition(top.get(i).getX(), top.get(i).getY()+speed);
 			bottom.get(i).setPosition(bottom.get(i).getX(), bottom.get(i).getY()+speed);
 		}
-		
+
 		if (bottom.size() > 0 && bottom.size() < 10 && bottom.get(bottom.size()-1).getY() >= 0) {
 			addMoreStraightLineVertical(1, (-100f/600)*height, (150f/400)*width, -83);
 		}
@@ -535,7 +578,7 @@ public class GameDisplay extends PApplet {
 		left_brow.setPosition(left_brow.getX() + deltaX, left_brow.getY() + deltaY);
 		right_brow.setPosition(right_brow.getX() + deltaX, right_brow.getY() + deltaY);		
 		flame_two.setPosition(flame_two.getX() + deltaX, flame_two.getY() + deltaY);*/
-		
+
 		// physical position of flame one
 		float fx = flame_one.getX() + (8f/400)*width;
 		float fy = flame_one.getY() + (85f/600)*height;
