@@ -31,7 +31,7 @@ public class GameDisplay extends PApplet {
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		size(400, 600, P2D);
+		size(400, 600);
 		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
@@ -75,10 +75,7 @@ public class GameDisplay extends PApplet {
 		normalSetup();
 	}
 
-	public void draw() {
-		/*if (frameCount >= 50)
-			return;*/
-		//System.out.println(bullets.size()+" "+world.getBodyCount()+" "+top.size());		
+	public void draw() {	
 		handleScreenMotion();
 		background(120);
 
@@ -92,29 +89,55 @@ public class GameDisplay extends PApplet {
 		else
 			image(cloud, cloudXPos, cloudYPos);
 		mussleFire();
-		//noStroke();
 
 		handleShooterMovement();
 		handleCollisions();
 		handleBulletMovement();
-		if (frameCount % 250 == 0) {
+		if (frameCount == 15) {
+			addMoreStraightLineVertical(1, 0, 150, -83);
+			handleStraightLineVertical();
+		}
+		else if (frameCount <= 250) {
+			handleStraightLineVertical();
+		}
+		else if (frameCount == 275) {
+			clearScissors();
+			addMoreCurveLeftTop(1, (550f/400)*width, (400f/600)*height, 0);
+			handleCurveLeftTop();
+		}
+		else if (frameCount <= 400) {
+			handleCurveLeftTop();
+		}
+		else {
+			clearScissors();
+		}
+		/*if (frameCount % 250 == 0) {
 			for (int i = 0; i < bottom.size(); i++) {
 				world.remove(bottom.get(i));
 				world.remove(top.get(i));				
 			}
 			bottom.clear();			
-			top.clear();			
+			top.clear();
 			addMore(1, (550f/400)*width, (400f/600)*height, 0);
 			handleScissorMotion();
 		}
 		else {			
 			handleScissorMotion();
-		}
+		}*/
 
 		world.draw();
 		world.step();
 		mussle_num++;
 
+	}
+	
+	public void clearScissors() {
+		for (int i = 0; i < bottom.size(); i++) {
+			world.remove(bottom.get(i));
+			world.remove(top.get(i));				
+		}
+		bottom.clear();			
+		top.clear();
 	}
 	
 	public void handleCollisions() {		
@@ -134,21 +157,21 @@ public class GameDisplay extends PApplet {
 	public boolean collision(FCircle bullet, FBox scissor) {
 		// bullet mapping
 		float[] topLeftBullet = {bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((472-281.4f)/600f)*height};
-		//topLeftBullet.y *= -1;
+
 		float[] bottomRightBullet = {bullet.getX()+((215-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height};
-		//bottomRightBullet.y *= -1;
+
 		float[] topRightBullet = {bullet.getX()+((215-209.3f)/400f)*width, bullet.getY()+((472-281.4f)/600f)*height};
-		//topRightBullet.y *= -1;
+
 		float[] bottomLeftBullet = {bullet.getX()+((210-209.3f)/400f)*width, bullet.getY()+((491-281.4f)/600f)*height};
-		//bottomLeftBullet.y *= -1;
+
 		
 		// scissor mapping
 		float[] bottomRightScissor = {scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height};
-		//bottomRightScissor.y *= -1;
+
 		float[] bottomLeftScissor = {bottomRightScissor[0]-(18f/400f)*width, bottomRightScissor[1]+(18f/600f)*height};
-		//bottomLeftScissor.y *= -1;
+
 		float[] topLeftScissor = {bottomLeftScissor[0]-(57f/400f)*width, bottomLeftScissor[1]-(43f/600f)*height};
-		//topLeftScissor.y *= -1;
+
 		float[] topRightScissor = {topLeftScissor[0]+(4f/400f)*width, topLeftScissor[1]-(8f/600f)*height};
 		
 		float[][] polyBullet = {topLeftBullet, bottomRightBullet, topRightBullet, bottomLeftBullet};
@@ -206,7 +229,7 @@ public class GameDisplay extends PApplet {
 	    return true;
 	}
 
-	public void addMore(int num, float xCounter, float y, int rotation) {
+	public void addMoreCurveLeftTop(int num, float xCounter, float y, int rotation) {
 		for (int i = 0; i < num; i++) {			
 			FBox bottomTemp = new FBox(10, 10);
 			bottomTemp.setStatic(true);
@@ -227,6 +250,28 @@ public class GameDisplay extends PApplet {
 			xCounter += (100f/400)*width;
 		}
 	}
+	
+	public void addMoreStraightLineVertical(int num, float yCounter, float x, int rotation) {
+		for (int i = 0; i < num; i++) {			
+			FBox bottomTemp = new FBox(10, 10);
+			bottomTemp.setStatic(true);
+			bottomTemp.attachImage(bottomImg);
+			bottomTemp.setPosition(x, yCounter);
+			bottomTemp.setRotation(radians(rotation));
+
+			FBox topTemp = new FBox(10, 10);
+			topTemp.setStatic(true);
+			topTemp.attachImage(topImg);
+			topTemp.setPosition(x, yCounter);
+			topTemp.setRotation(radians(rotation));
+			bottom.add(bottomTemp);
+			top.add(topTemp);
+			
+			world.add(bottomTemp);
+			world.add(topTemp);
+			yCounter -= (100f/600)*height;
+		}
+	}
 
 	public static int randInt(int min, int max) {
 
@@ -240,8 +285,20 @@ public class GameDisplay extends PApplet {
 
 		return randomNum;
 	}
+	
+	public void handleStraightLineVertical() {
+		float speed = (5f/600)*height;
+		for (int i = 0; i < bottom.size(); i++) {
+			top.get(i).setPosition(top.get(i).getX(), top.get(i).getY()+speed);
+			bottom.get(i).setPosition(bottom.get(i).getX(), bottom.get(i).getY()+speed);
+		}
+		
+		if (bottom.size() > 0 && bottom.size() < 10 && bottom.get(bottom.size()-1).getY() >= 0) {
+			addMoreStraightLineVertical(1, (-100f/600)*height, (150f/400)*width, -83);
+		}
+	}
 
-	public void handleScissorMotion() {
+	public void handleCurveLeftTop() {
 		float hor_speed = (8f/400)*width;
 		float vert_speed = (2f/600)*height;
 
@@ -255,8 +312,8 @@ public class GameDisplay extends PApplet {
 			vert_speed += (2f/600)*height;
 		}
 
-		if (bottom.size() < 8 && bottom.get(bottom.size()-1).getX() >= 0) {
-			addMore(1, (550f/400)*width, (400f/600)*height, 0);
+		if (bottom.size() > 0 && bottom.size() < 8 && bottom.get(bottom.size()-1).getX() >= 0) {
+			addMoreCurveLeftTop(1, (550f/400)*width, (400f/600)*height, 0);
 		}
 	}
 
@@ -338,8 +395,6 @@ public class GameDisplay extends PApplet {
 
 		bottom = new ArrayList<FBox>();
 		top = new ArrayList<FBox>();
-
-		addMore(1, 550, 400, 0);
 
 	}
 
