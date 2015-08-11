@@ -31,7 +31,7 @@ public class GameDisplay extends PApplet {
 	public void setup() {
 		Fisica.init(this);
 		//frameRate(250);
-		size(400, 600, P2D);
+		size(400, 600);
 		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
@@ -67,8 +67,8 @@ public class GameDisplay extends PApplet {
 		bg.resize((int)(width*1.5), (int)(height*1.5));
 		cloud.resize((int)(width*0.75), (int)(height*0.75));
 
-		bottomImg = loadImage("brow_scissors/1.png");
-		topImg = loadImage("brow_scissors/2.png");
+		bottomImg = loadImage("brow_scissors1.png");
+		topImg = loadImage("brow_scissors2.png");
 		bottomImg.resize(width/4, height/4);
 		topImg.resize(width/4,  height/4);
 
@@ -94,18 +94,26 @@ public class GameDisplay extends PApplet {
 		handleCollisions();
 		handleBulletMovement();
 		if (frameCount == 15) {
-			addMoreStraightLineVertical(1, 0, 150, -83);
-			handleStraightLineVertical();
+			addMoreStraightLineVertical(1, 0, (100f/400)*width, -83);
+			handleStraightLineVertical(100);
 		}
-		else if (frameCount <= 250) {
-			handleStraightLineVertical();
+		else if (frameCount <= 350) {
+			handleStraightLineVertical(100);
 		}
-		else if (frameCount == 275) {
+		else if (frameCount == 375) {
+			clearScissors();
+			addMoreStraightLineVertical(1, 0, (250f/400)*width, -83);
+			handleStraightLineVertical(250);
+		}
+		else if (frameCount <= 500) {
+			handleStraightLineVertical(250);
+		}
+		else if (frameCount == 525) {
 			clearScissors();
 			addMoreCurveLeftTop(1, (550f/400)*width, (400f/600)*height, 0);
 			handleCurveLeftTop();
 		}
-		else if (frameCount <= 400) {
+		else if (frameCount <= 650) {
 			handleCurveLeftTop();
 		}
 		else {
@@ -116,7 +124,7 @@ public class GameDisplay extends PApplet {
 				world.remove(bottom.get(i));
 				world.remove(top.get(i));				
 			}
-			bottom.clear();			
+			bottom.clear();
 			top.clear();
 			addMore(1, (550f/400)*width, (400f/600)*height, 0);
 			handleScissorMotion();
@@ -134,19 +142,30 @@ public class GameDisplay extends PApplet {
 	public void clearScissors() {
 		for (int i = 0; i < bottom.size(); i++) {
 			world.remove(bottom.get(i));
-			world.remove(top.get(i));				
+			world.remove(top.get(i));
 		}
 		bottom.clear();			
 		top.clear();
 	}
 
-	public void handleCollisions() {		
-		for (FCircle bullet: bullets) {
+	public void handleCollisions() {
+		for (int x = bullets.size()-1; x >= 0; x--) {
+			FCircle bullet = bullets.get(x);
 			for (int i = 0; i < bottom.size(); i++) {
 				FBox scissor = bottom.get(i);
 				if (collision(bullet, scissor)) {
-					scissor.dettachImage();	
-					top.get(i).dettachImage();
+					int currentHealth = Integer.parseInt(scissor.getName());
+					currentHealth--;
+					if (currentHealth == 0) {
+						scissor.dettachImage();	
+						top.get(i).dettachImage();
+					}
+					else {
+						scissor.setName(currentHealth+"");
+						top.get(i).setName(currentHealth+"");
+					}
+					world.remove(bullet);
+					bullets.remove(x);
 					//System.out.println("collided");
 				}
 			}
@@ -177,7 +196,7 @@ public class GameDisplay extends PApplet {
 
 			topRightScissor = new float[]{topLeftScissor[0]+(4f/400f)*width, topLeftScissor[1]-(8f/600f)*height};
 		}
-		else if (Math.abs(angle) <= 1) { // case 2
+		else if (Math.abs(angle) <= 10) { // case 2
 			bottomRightScissor = new float[] {scissor.getX()+(36f/400f)*width, scissor.getY()+(71f/600f)*height};
 
 			bottomLeftScissor = new float[] {scissor.getX()+(41f/400f)*width, scissor.getY()+(45f/600f)*height};
@@ -186,18 +205,42 @@ public class GameDisplay extends PApplet {
 
 			topRightScissor = new float[] {scissor.getX()+(-36f/400f)*width, scissor.getY()+(71f/600f)*height};
 		}
-		/*else if (Math.abs(90-angle) <= 1) { // case 3
+		else if (Math.abs(90-angle) <= 10) { // case 3
+			bottomRightScissor = new float[] {scissor.getX()+(-73f/400f)*width, scissor.getY()+(36f/600f)*height};
 
+			bottomLeftScissor = new float[] {scissor.getX()+(-49f/400f)*width, scissor.getY()+(43f/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+(-67f/400f)*width, scissor.getY()+(63f/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+(-72f/400f)*width, scissor.getY()+(-36f/600f)*height};
 		}
 		else if (angle > 90 && angle < 180) { // case 4
-			
+			bottomRightScissor = new float[] {scissor.getX()+(-76f/400f)*width, scissor.getY()+(-31f/600f)*height};
+
+			bottomLeftScissor = new float[] {scissor.getX()+((134-200)/400f)*width, scissor.getY()+((195-200)/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+((179-200)/400f)*width, scissor.getY()+((128-200)/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+((173-200)/400f)*width, scissor.getY()+((124-200)/600f)*height};
 		}
-		else if (Math.abs(angle-180) <= 1) { //case 5
-			
+		else if (Math.abs(angle-180) <= 10) { //case 5
+			bottomRightScissor = new float[] {scissor.getX()+((163-200)/400f)*width, scissor.getY()+((126-200)/600f)*height};
+
+			bottomLeftScissor = new float[] {scissor.getX()+((153-200)/400f)*width, scissor.getY()+((148-200)/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+((234-200)/400f)*width, scissor.getY()+((135-200)/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+((234-200)/400f)*width, scissor.getY()+((127-200)/600f)*height};
 		}
 		else if (angle > 180 && angle < 270) { // case 6
-			
-		}*/
+			bottomRightScissor = new float[] {scissor.getX()+((223-200)/400f)*width, scissor.getY()+((122-200)/600f)*height};
+
+			bottomLeftScissor = new float[] {scissor.getX()+((200-200)/400f)*width, scissor.getY()+((132-200)/600f)*height};
+
+			topLeftScissor = new float[] {scissor.getX()+((269-200)/400f)*width, scissor.getY()+((177-200)/600f)*height};
+
+			topRightScissor = new float[] {scissor.getX()+((274-200)/400f)*width, scissor.getY()+((173-200)/600f)*height};
+		}
 		else if (Math.abs(angle-270) <= 10) { // case 7
 			bottomRightScissor = new float[] {scissor.getX()+(73f/400f)*width, scissor.getY()+(-37f/600f)*height};
 
@@ -216,7 +259,7 @@ public class GameDisplay extends PApplet {
 
 			topRightScissor = new float[] {scissor.getX()+(25f/400f)*width, scissor.getY()+(73f/600f)*height};
 		}
-		
+
 		float[][] polyBullet = {topLeftBullet, bottomRightBullet, topRightBullet, bottomLeftBullet};
 
 		float[][] polyScissor = {bottomRightScissor, bottomLeftScissor, topLeftScissor, topRightScissor};
@@ -279,12 +322,15 @@ public class GameDisplay extends PApplet {
 			bottomTemp.attachImage(bottomImg);
 			bottomTemp.setPosition(xCounter, y);
 			bottomTemp.setRotation(radians(rotation));
+			bottomTemp.setName("1");
 
 			FBox topTemp = new FBox(10, 10);
 			topTemp.setStatic(true);
 			topTemp.attachImage(topImg);
 			topTemp.setPosition(xCounter, y);
 			topTemp.setRotation(radians(rotation));
+			bottomTemp.setName("1");
+
 			bottom.add(bottomTemp);
 			top.add(topTemp);
 
@@ -301,12 +347,15 @@ public class GameDisplay extends PApplet {
 			bottomTemp.attachImage(bottomImg);
 			bottomTemp.setPosition(x, yCounter);
 			bottomTemp.setRotation(radians(rotation));
+			bottomTemp.setName("1");
 
 			FBox topTemp = new FBox(10, 10);
 			topTemp.setStatic(true);
 			topTemp.attachImage(topImg);
 			topTemp.setPosition(x, yCounter);
 			topTemp.setRotation(radians(rotation));
+			bottomTemp.setName("1");
+
 			bottom.add(bottomTemp);
 			top.add(topTemp);
 
@@ -317,19 +366,12 @@ public class GameDisplay extends PApplet {
 	}
 
 	public static int randInt(int min, int max) {
-
-		// NOTE: Usually this should be a field rather than a method
-		// variable so that it is not re-seeded every call.
 		Random rand = new Random();
-
-		// nextInt is normally exclusive of the top value,
-		// so add 1 to make it inclusive
 		int randomNum = rand.nextInt((max - min) + 1) + min;
-
 		return randomNum;
 	}
 
-	public void handleStraightLineVertical() {
+	public void handleStraightLineVertical(float x) {
 		float speed = (5f/600)*height;
 		for (int i = 0; i < bottom.size(); i++) {
 			top.get(i).setPosition(top.get(i).getX(), top.get(i).getY()+speed);
@@ -337,7 +379,7 @@ public class GameDisplay extends PApplet {
 		}
 
 		if (bottom.size() > 0 && bottom.size() < 10 && bottom.get(bottom.size()-1).getY() >= 0) {
-			addMoreStraightLineVertical(1, (-100f/600)*height, (150f/400)*width, -83);
+			addMoreStraightLineVertical(1, (-100f/600)*height, (x/400)*width, -83);
 		}
 	}
 
@@ -679,14 +721,14 @@ public class GameDisplay extends PApplet {
 		//System.out.println("Bullet 2last "+bullets.get(bullets.size()-2).getX()+" "+bullets.get(bullets.size()-2).getY());
 		//System.out.println("Bullet 1last "+bullets.get(bullets.size()-1).getX()+" "+bullets.get(bullets.size()-1).getY()+"\n");
 		//transformBrow();
-		/*if (!isTransformed) {
+		if (!isTransformed) {
 			transformBrow();
 			isTransformed = true;
 		}
 		else {
 			transformBrow();
 			isTransformed = false;
-		}*/
+		}
 	}
 
 }
