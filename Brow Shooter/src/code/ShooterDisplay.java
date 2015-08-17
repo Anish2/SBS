@@ -12,7 +12,7 @@ public class ShooterDisplay extends PApplet {
 	private int startXPos, optionsXPos;
 
 	public void setup() {		
-		size(400, 600);
+		size(400, 600, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
 		base = loadImage("Brow Fighte base.png");

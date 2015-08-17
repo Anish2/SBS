@@ -1,4 +1,4 @@
-package code;
+package testing;
 
 import processing.core.PApplet;
 import fisica.FCircle;

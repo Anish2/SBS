@@ -19,7 +19,7 @@ public class GameDisplay extends PApplet {
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
 	private float bgXPos, bgYPos, cloudXPos, cloudYPos, backYPos;
 	private boolean left, right, up, down;
-	private int mussle_num = 0;
+	private int mussle_num = 0, deploymentNum;
 	private float hor_speed, vert_speed;
 	private boolean isTransformed = false, switchBg = true;
 	private float prevXPos, prevYPos;
@@ -29,9 +29,9 @@ public class GameDisplay extends PApplet {
 	private ArrayList<FBox> bottom, top;
 
 	public void setup() {
+		size(400, 600, P2D);
 		Fisica.init(this);
-		//frameRate(250);
-		size(400, 600);
+		//frameRate(250);		
 		//size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
@@ -95,26 +95,26 @@ public class GameDisplay extends PApplet {
 		handleBulletMovement();
 		if (frameCount == 15) {
 			addMoreStraightLineVertical(1, 0, (100f/400)*width, -83);
-			handleStraightLineVertical(100);
+			handleStraightLineVertical(100, 4f);
 		}
 		else if (frameCount <= 350) {
-			handleStraightLineVertical(100);
+			handleStraightLineVertical(90, 4f);
 		}
 		else if (frameCount == 375) {
 			clearScissors();
 			addMoreStraightLineVertical(1, 0, (250f/400)*width, -83);
-			handleStraightLineVertical(250);
+			handleStraightLineVertical(200, 4f);
 		}
-		else if (frameCount <= 500) {
-			handleStraightLineVertical(250);
+		else if (frameCount <= 695) {
+			handleStraightLineVertical(200, 4f);
 		}
-		else if (frameCount == 525) {
+		else if (frameCount == 715) {
 			clearScissors();
 			addMoreCurveLeftTop(1, (550f/400)*width, (400f/600)*height, 0);
-			handleCurveLeftTop();
+			handleCurveLeftTop(8f, 2f);
 		}
-		else if (frameCount <= 650) {
-			handleCurveLeftTop();
+		else if (frameCount <= 915) {
+			handleCurveLeftTop(8f, 2f);
 		}
 		else {
 			clearScissors();
@@ -140,6 +140,7 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void clearScissors() {
+		deploymentNum = 0;
 		for (int i = 0; i < bottom.size(); i++) {
 			world.remove(bottom.get(i));
 			world.remove(top.get(i));
@@ -151,14 +152,16 @@ public class GameDisplay extends PApplet {
 	public void handleCollisions() {
 		for (int x = bullets.size()-1; x >= 0; x--) {
 			FCircle bullet = bullets.get(x);
-			for (int i = 0; i < bottom.size(); i++) {
+			for (int i = bottom.size()-1; i >= 0; i--) {
 				FBox scissor = bottom.get(i);
 				if (collision(bullet, scissor)) {
 					int currentHealth = Integer.parseInt(scissor.getName());
 					currentHealth--;
 					if (currentHealth == 0) {
-						scissor.dettachImage();	
-						top.get(i).dettachImage();
+						world.remove(scissor);
+						world.remove(top.get(i));
+						bottom.remove(i);
+						top.remove(i);
 					}
 					else {
 						scissor.setName(currentHealth+"");
@@ -347,14 +350,14 @@ public class GameDisplay extends PApplet {
 			bottomTemp.attachImage(bottomImg);
 			bottomTemp.setPosition(x, yCounter);
 			bottomTemp.setRotation(radians(rotation));
-			bottomTemp.setName("1");
+			bottomTemp.setName("2");
 
 			FBox topTemp = new FBox(10, 10);
 			topTemp.setStatic(true);
 			topTemp.attachImage(topImg);
 			topTemp.setPosition(x, yCounter);
 			topTemp.setRotation(radians(rotation));
-			bottomTemp.setName("1");
+			bottomTemp.setName("2");
 
 			bottom.add(bottomTemp);
 			top.add(topTemp);
@@ -371,21 +374,22 @@ public class GameDisplay extends PApplet {
 		return randomNum;
 	}
 
-	public void handleStraightLineVertical(float x) {
-		float speed = (5f/600)*height;
+	public void handleStraightLineVertical(float x, float raw_speed) {
+		float speed = (raw_speed/600)*height;
 		for (int i = 0; i < bottom.size(); i++) {
 			top.get(i).setPosition(top.get(i).getX(), top.get(i).getY()+speed);
 			bottom.get(i).setPosition(bottom.get(i).getX(), bottom.get(i).getY()+speed);
 		}
 
-		if (bottom.size() > 0 && bottom.size() < 10 && bottom.get(bottom.size()-1).getY() >= 0) {
+		if (bottom.size() > 0 && deploymentNum < 8 && bottom.get(bottom.size()-1).getY() >= 0) {
 			addMoreStraightLineVertical(1, (-100f/600)*height, (x/400)*width, -83);
+			deploymentNum++;
 		}
 	}
 
-	public void handleCurveLeftTop() {
-		float hor_speed = (8f/400)*width;
-		float vert_speed = (2f/600)*height;
+	public void handleCurveLeftTop(float raw_horspeed, float raw_vertspeed) {
+		float hor_speed = (raw_horspeed/400)*width;
+		float vert_speed = (raw_vertspeed/600)*height;
 
 		for (int i = 0; i < bottom.size(); i++) {			
 			top.get(i).setPosition(top.get(i).getX() - hor_speed, top.get(i).getY() - vert_speed);
@@ -397,8 +401,9 @@ public class GameDisplay extends PApplet {
 			vert_speed += (2f/600)*height;
 		}
 
-		if (bottom.size() > 0 && bottom.size() < 8 && bottom.get(bottom.size()-1).getX() >= 0) {
+		if (bottom.size() > 0 && deploymentNum < 8 && bottom.size() < 8 && bottom.get(bottom.size()-1).getX() >= 0) {
 			addMoreCurveLeftTop(1, (550f/400)*width, (400f/600)*height, 0);
+			deploymentNum++;
 		}
 	}
 
