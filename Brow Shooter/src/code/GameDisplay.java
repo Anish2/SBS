@@ -13,8 +13,9 @@ import fisica.Fisica;
 public class GameDisplay extends PApplet {
 
 	private PImage left_browImg, right_browImg, flame_oneImg, flame_twoImg, flame_threeImg, flame_fourImg;
-	private PImage bg, barImg, cloud;
+	private PImage bg, barImg, cloud, cloud2, cloud3, cloud4, cloud5, cloud6;
 	private PImage bullets1, bullets2, bullets3, bullets4, bullets5;
+	private static Random random = new Random();
 	private FWorld world;
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
 	private float bgXPos, bgYPos, cloudXPos, cloudYPos, backYPos;
@@ -41,7 +42,8 @@ public class GameDisplay extends PApplet {
 		flame_twoImg = loadImage("2.png");
 		flame_threeImg = loadImage("3.png");
 		flame_fourImg = loadImage("4.png");
-		bullets1 = loadImage("bullets1.png");
+		//bullets1 = loadImage("bullets1.png");
+		bullets1 = loadImage("superbullet1.png");
 		bullets2 = loadImage("bullets2.png");
 		bullets3 = loadImage("bullets3.png");
 		bullets4 = loadImage("bullets4.png");
@@ -49,6 +51,11 @@ public class GameDisplay extends PApplet {
 		barImg = loadImage("brow bars 1.png");
 		bg = loadImage("map.png");
 		cloud = loadImage("cloud1.png");
+		cloud2 = loadImage("cloud2.png");
+		cloud3 = loadImage("cloud3.png");
+		cloud4 = loadImage("cloud4.png");
+		cloud5 = loadImage("cloud5.png");
+		cloud6 = loadImage("cloud6.png");
 
 		left_browImg.resize(width, height);
 		right_browImg.resize(width, height);
@@ -65,7 +72,13 @@ public class GameDisplay extends PApplet {
 		bullets5.resize(width, height);
 
 		bg.resize((int)(width*1.5), (int)(height*1.5));
-		cloud.resize((int)(width*0.75), (int)(height*0.75));
+		int cloud_resX = width, cloud_resY = height;
+		cloud.resize(cloud_resX, cloud_resY);
+		cloud2.resize(cloud_resX, cloud_resY);
+		cloud3.resize(cloud_resX, cloud_resY);
+		cloud4.resize(cloud_resX, cloud_resY);
+		cloud5.resize(cloud_resX, cloud_resY);
+		cloud6.resize(cloud_resX, cloud_resY);
 
 		bottomImg = loadImage("brow_scissors1.png");
 		topImg = loadImage("brow_scissors2.png");
@@ -80,14 +93,17 @@ public class GameDisplay extends PApplet {
 		background(120);
 
 		image(bg, bgXPos, bgYPos+(0/600f)*height);		
-		image(bg, bgXPos, backYPos-(450/600f)*height);		
+		image(bg, bgXPos, backYPos-(450/600f)*height);
+		PImage[] clouds = {cloud, cloud2, cloud3, cloud4, cloud5, cloud6};
 		if (frameCount % 150 == 125) {
-			cloudXPos = randInt(-50, width);
+			cloudXPos = randInt(0, width);
 			cloudYPos = (-250f/600)*height;
-			image(cloud, cloudXPos, cloudYPos);
+			int rand = randInt(0, clouds.length-1);
+			image(clouds[rand], cloudXPos, cloudYPos);
 		}
 		else
 			image(cloud, cloudXPos, cloudYPos);
+		
 		mussleFire();
 
 		handleShooterMovement();
@@ -191,76 +207,76 @@ public class GameDisplay extends PApplet {
 		float angle = degrees(scissor.getRotation());
 		if (angle < 0) angle += 360f;
 		if (angle > 0 && angle < 90) { // case 1
-			bottomRightScissor = new float[] {scissor.getX()+(3f/400f)*width, scissor.getY()+(59f/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((215-200)/400f)*width, scissor.getY()+((230-200)/600f)*height};
 
-			bottomLeftScissor = new float[]{bottomRightScissor[0]-(18f/400f)*width, bottomRightScissor[1]+(18f/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((235-200)/400f)*width, scissor.getY()+((215-200)/600f)*height};
 
-			topLeftScissor = new float[]{bottomLeftScissor[0]-(57f/400f)*width, bottomLeftScissor[1]-(43f/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((169-200)/400f)*width, scissor.getY()+((171-200)/600f)*height};
 
-			topRightScissor = new float[]{topLeftScissor[0]+(4f/400f)*width, topLeftScissor[1]-(8f/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((163-200)/400f)*width, scissor.getY()+((179-200)/600f)*height};
 		}
 		else if (Math.abs(angle) <= 10) { // case 2
-			bottomRightScissor = new float[] {scissor.getX()+(36f/400f)*width, scissor.getY()+(71f/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((232-200)/400f)*width, scissor.getY()+((207-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+(41f/400f)*width, scissor.getY()+(45f/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((242-200)/400f)*width, scissor.getY()+((184-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+(-36f/400f)*width, scissor.getY()+(62f/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((159-200)/400f)*width, scissor.getY()+((200-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+(-36f/400f)*width, scissor.getY()+(71f/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((160-200)/400f)*width, scissor.getY()+((209-200)/600f)*height};
 		}
 		else if (Math.abs(90-angle) <= 10) { // case 3
-			bottomRightScissor = new float[] {scissor.getX()+(-73f/400f)*width, scissor.getY()+(36f/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((187-200)/400f)*width, scissor.getY()+((229-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+(-49f/400f)*width, scissor.getY()+(43f/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((214-200)/400f)*width, scissor.getY()+((241-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+(-67f/400f)*width, scissor.getY()+(63f/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((198-200)/400f)*width, scissor.getY()+((159-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+(-72f/400f)*width, scissor.getY()+(-36f/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((188-200)/400f)*width, scissor.getY()+((158-200)/600f)*height};
 		}
 		else if (angle > 90 && angle < 180) { // case 4
-			bottomRightScissor = new float[] {scissor.getX()+(-76f/400f)*width, scissor.getY()+(-31f/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((170-200)/400f)*width, scissor.getY()+((212-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+((134-200)/400f)*width, scissor.getY()+((195-200)/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((179-200)/400f)*width, scissor.getY()+((239-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+((179-200)/400f)*width, scissor.getY()+((128-200)/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((226-200)/400f)*width, scissor.getY()+((169-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+((173-200)/400f)*width, scissor.getY()+((124-200)/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((219-200)/400f)*width, scissor.getY()+((163-200)/600f)*height};
 		}
 		else if (Math.abs(angle-180) <= 10) { //case 5
-			bottomRightScissor = new float[] {scissor.getX()+((163-200)/400f)*width, scissor.getY()+((126-200)/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((167-200)/400f)*width, scissor.getY()+((188-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+((153-200)/400f)*width, scissor.getY()+((148-200)/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((153-200)/400f)*width, scissor.getY()+((209-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+((234-200)/400f)*width, scissor.getY()+((135-200)/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((236-200)/400f)*width, scissor.getY()+((197-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+((234-200)/400f)*width, scissor.getY()+((127-200)/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((236-200)/400f)*width, scissor.getY()+((189-200)/600f)*height};
 		}
 		else if (angle > 180 && angle < 270) { // case 6
-			bottomRightScissor = new float[] {scissor.getX()+((223-200)/400f)*width, scissor.getY()+((122-200)/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((184-200)/400f)*width, scissor.getY()+((168-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+((200-200)/400f)*width, scissor.getY()+((132-200)/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((158-200)/400f)*width, scissor.getY()+((177-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+((269-200)/400f)*width, scissor.getY()+((177-200)/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((227-200)/400f)*width, scissor.getY()+((225-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+((274-200)/400f)*width, scissor.getY()+((173-200)/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((235-200)/400f)*width, scissor.getY()+((218-200)/600f)*height};
 		}
 		else if (Math.abs(angle-270) <= 10) { // case 7
-			bottomRightScissor = new float[] {scissor.getX()+(73f/400f)*width, scissor.getY()+(-37f/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((211-200)/400f)*width, scissor.getY()+((166-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+(48f/400f)*width, scissor.getY()+(-48f/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((183-200)/400f)*width, scissor.getY()+((154-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+(65f/400f)*width, scissor.getY()+(33f/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((203-200)/400f)*width, scissor.getY()+((237-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+(71f/400f)*width, scissor.getY()+(34f/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((211-200)/400f)*width, scissor.getY()+((237-200)/600f)*height};
 		}
 		else { // case 8
-			bottomRightScissor = new float[] {scissor.getX()+(74f/400f)*width, scissor.getY()+(25f/600f)*height};
+			bottomRightScissor = new float[] {scissor.getX()+((229-200)/400f)*width, scissor.getY()+((184-200)/600f)*height};
 
-			bottomLeftScissor = new float[] {scissor.getX()+(65f/400f)*width, scissor.getY()+(1f/600f)*height};
+			bottomLeftScissor = new float[] {scissor.getX()+((218-200)/400f)*width, scissor.getY()+((158-200)/600f)*height};
 
-			topLeftScissor = new float[] {scissor.getX()+(19f/400f)*width, scissor.getY()+(69f/600f)*height};
+			topLeftScissor = new float[] {scissor.getX()+((174-200)/400f)*width, scissor.getY()+((227-200)/600f)*height};
 
-			topRightScissor = new float[] {scissor.getX()+(25f/400f)*width, scissor.getY()+(73f/600f)*height};
+			topRightScissor = new float[] {scissor.getX()+((178-200)/400f)*width, scissor.getY()+((232-200)/600f)*height};
 		}
 
 		float[][] polyBullet = {topLeftBullet, bottomRightBullet, topRightBullet, bottomLeftBullet};
@@ -369,8 +385,7 @@ public class GameDisplay extends PApplet {
 	}
 
 	public static int randInt(int min, int max) {
-		Random rand = new Random();
-		int randomNum = rand.nextInt((max - min) + 1) + min;
+		int randomNum = random.nextInt((max - min) + 1) + min;
 		return randomNum;
 	}
 
@@ -424,6 +439,17 @@ public class GameDisplay extends PApplet {
 		float y = flame_one.getY();
 		float scale = (1f/600)*height;
 		float cloudscale = (3.2f/600)*height;
+		
+		float x_scale = scale/6;
+		
+		if (prevXPos <= x) {
+			bgXPos -= (x-prevXPos)*x_scale;
+			cloudXPos -= (x-prevXPos)*x_scale;
+		}		
+		else if (prevXPos >= x) {
+			bgXPos += (prevXPos-x)*x_scale;
+			cloudXPos += (prevXPos-x)*x_scale;
+		}
 
 		float bgOffset = (450f/600)*height;
 		if (switchBg && Math.abs(backYPos-(-0.25f*height+bgOffset)) <= 2*scale) {
@@ -726,14 +752,14 @@ public class GameDisplay extends PApplet {
 		//System.out.println("Bullet 2last "+bullets.get(bullets.size()-2).getX()+" "+bullets.get(bullets.size()-2).getY());
 		//System.out.println("Bullet 1last "+bullets.get(bullets.size()-1).getX()+" "+bullets.get(bullets.size()-1).getY()+"\n");
 		//transformBrow();
-		if (!isTransformed) {
+		/*if (!isTransformed) {
 			transformBrow();
 			isTransformed = true;
 		}
 		else {
 			transformBrow();
 			isTransformed = false;
-		}
+		}*/
 	}
 
 }
