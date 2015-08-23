@@ -1,5 +1,7 @@
 package code;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,13 +16,14 @@ public class GameDisplay extends PApplet {
 
 	private PImage left_browImg, right_browImg, flame_oneImg, flame_twoImg, flame_threeImg, flame_fourImg;
 	private PImage bg, barImg, cloud, cloud2, cloud3, cloud4, cloud5, cloud6;
+	private PImage cached_cloud, memcached_cloud;
 	private PImage bullets1, bullets2, bullets3, bullets4, bullets5;
 	private static Random random = new Random();
 	private FWorld world;
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
-	private float bgXPos, bgYPos, cloudXPos, cloudYPos, backYPos;
+	private float bgXPos, bgYPos, cloudXPos, cloudYPos, backYPos, fastCloudX, fastCloudY;
 	private boolean left, right, up, down;
-	private int mussle_num = 0, deploymentNum;
+	private int mussle_num = 0, deploymentNum, currentNum;
 	private float hor_speed, vert_speed;
 	private boolean isTransformed = false, switchBg = true;
 	private float prevXPos, prevYPos;
@@ -28,6 +31,9 @@ public class GameDisplay extends PApplet {
 
 	private PImage bottomImg, topImg;
 	private ArrayList<FBox> bottom, top;
+	private BufferedReader in;
+	private String tempStr;
+	private ArrayList<int[]> steps = new ArrayList<int[]>();
 
 	public void setup() {
 		size(400, 600, P2D);
@@ -43,7 +49,8 @@ public class GameDisplay extends PApplet {
 		flame_threeImg = loadImage("3.png");
 		flame_fourImg = loadImage("4.png");
 		//bullets1 = loadImage("bullets1.png");
-		bullets1 = loadImage("superbullet1.png");
+		//bullets1 = loadImage("superbullet1.png");
+		bullets1 = loadImage("bluebird2.png");
 		bullets2 = loadImage("bullets2.png");
 		bullets3 = loadImage("bullets3.png");
 		bullets4 = loadImage("bullets4.png");
@@ -85,6 +92,22 @@ public class GameDisplay extends PApplet {
 		bottomImg.resize(width/4, height/4);
 		topImg.resize(width/4,  height/4);
 
+		cached_cloud = cloud;
+		memcached_cloud = cloud;
+		in = createReader("C:\\Users\\Anish\\git\\SBS\\Brow Shooter\\src\\data\\brow_motion.txt");
+		String p;
+		try {
+			p = in.readLine();
+			while (p != null) {
+				String[] chunks = p.split(" ");
+				int[] step = {(int) ((Integer.parseInt(chunks[0])/400f)*width), (int) ((Integer.parseInt(chunks[1])/600f)*height)};
+				steps.add(step);
+				p = in.readLine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		normalSetup();
 	}
 
@@ -95,15 +118,25 @@ public class GameDisplay extends PApplet {
 		image(bg, bgXPos, bgYPos+(0/600f)*height);		
 		image(bg, bgXPos, backYPos-(450/600f)*height);
 		PImage[] clouds = {cloud, cloud2, cloud3, cloud4, cloud5, cloud6};
-		if (frameCount % 150 == 125) {
-			cloudXPos = randInt(0, width);
+		if (frameCount % 150 == 60) {
+			cloudXPos = randInt((int)((20f/400)*width), (int)((380f/400)*width));
 			cloudYPos = (-250f/600)*height;
 			int rand = randInt(0, clouds.length-1);
 			image(clouds[rand], cloudXPos, cloudYPos);
+			cached_cloud = clouds[rand];
 		}
-		else
-			image(cloud, cloudXPos, cloudYPos);
-		
+		else if (frameCount % 80 == 42) {
+			fastCloudX = randInt((int)((40f/400)*width), (int)((360f/400)*width));
+			fastCloudY = (-250f/600)*height;
+			int rand = randInt(0, clouds.length-1);
+			image(clouds[rand], cloudXPos, cloudYPos);
+			memcached_cloud = clouds[rand];
+		}
+		else {
+			image(cached_cloud, cloudXPos, cloudYPos);
+			image(memcached_cloud, fastCloudX, fastCloudY);
+		}
+
 		mussleFire();
 
 		handleShooterMovement();
@@ -132,6 +165,14 @@ public class GameDisplay extends PApplet {
 		else if (frameCount <= 915) {
 			handleCurveLeftTop(8f, 2f);
 		}
+		else if (frameCount == 950) {
+			clearScissors();
+			addSnake(200, -250);
+			handleSnake();
+		}
+		else if (frameCount <= 1600) {	
+			handleSnake();
+		}
 		else {
 			clearScissors();
 		}
@@ -157,6 +198,7 @@ public class GameDisplay extends PApplet {
 
 	public void clearScissors() {
 		deploymentNum = 0;
+		currentNum = 0;
 		for (int i = 0; i < bottom.size(); i++) {
 			world.remove(bottom.get(i));
 			world.remove(top.get(i));
@@ -181,7 +223,7 @@ public class GameDisplay extends PApplet {
 					}
 					else {
 						scissor.setName(currentHealth+"");
-						top.get(i).setName(currentHealth+"");
+						//top.get(i).setName(currentHealth+"");
 					}
 					world.remove(bullet);
 					bullets.remove(x);
@@ -373,7 +415,7 @@ public class GameDisplay extends PApplet {
 			topTemp.attachImage(topImg);
 			topTemp.setPosition(x, yCounter);
 			topTemp.setRotation(radians(rotation));
-			bottomTemp.setName("2");
+			topTemp.setName("2");
 
 			bottom.add(bottomTemp);
 			top.add(topTemp);
@@ -382,6 +424,57 @@ public class GameDisplay extends PApplet {
 			world.add(topTemp);
 			yCounter -= (100f/600)*height;
 		}
+	}
+
+	public void handleSnake() {
+		for (int i = 0; i < bottom.size(); i++) {
+			if (currentNum >= steps.size()) return;
+			follow(top.get(i), bottom.get(i), steps.get(currentNum)[0], steps.get(currentNum)[1], (3f/(400*600))*width*height);
+			currentNum++;
+		}	
+
+		/*if (bottom.size() > 0 && deploymentNum < 5 && bottom.get(bottom.size()-1).getY() >= -50) {
+			addSnake(200, -250);
+			deploymentNum++;
+		}*/
+	}
+
+	public void addSnake(float x, float y) {
+		FBox bottomTemp = new FBox(10, 10);
+		bottomTemp.setStatic(true);
+		bottomTemp.attachImage(bottomImg);
+		bottomTemp.setPosition(x, y);
+		bottomTemp.setName("15");
+
+		FBox topTemp = new FBox(10, 10);
+		topTemp.setStatic(true);
+		topTemp.attachImage(topImg);
+		topTemp.setPosition(x, y);
+		topTemp.setName("15");
+
+		bottom.add(bottomTemp);
+		top.add(topTemp);
+
+		world.add(bottomTemp);
+		world.add(topTemp);
+	}
+
+	public void follow(FBox top, FBox bottom, float a, float b, float speed) {
+		float m = (top.getY() - b)/(top.getX() - a);
+		float theta = degrees(atan(m));
+		if (theta < 0) {
+			theta += 180;			
+		}
+		if (b < top.getY()) {
+			theta += 180;
+		}		
+		float comp_x = speed*cos(radians(theta));
+		float comp_y = speed*sin(radians(theta));
+		top.setPosition(top.getX() + comp_x, top.getY() + comp_y);
+		bottom.setPosition(bottom.getX() + comp_x, bottom.getY() + comp_y);
+		theta -= 170;
+		bottom.setRotation(radians(theta));
+		top.setRotation(radians(theta));
 	}
 
 	public static int randInt(int min, int max) {
@@ -439,9 +532,9 @@ public class GameDisplay extends PApplet {
 		float y = flame_one.getY();
 		float scale = (1f/600)*height;
 		float cloudscale = (3.2f/600)*height;
-		
+
 		float x_scale = scale/6;
-		
+
 		if (prevXPos <= x) {
 			bgXPos -= (x-prevXPos)*x_scale;
 			cloudXPos -= (x-prevXPos)*x_scale;
@@ -463,6 +556,7 @@ public class GameDisplay extends PApplet {
 		bgYPos += 4*scale;
 		backYPos += 4*scale;
 		cloudYPos += 2*cloudscale;
+		fastCloudY += 10*cloudscale;
 
 		prevXPos = x;
 		prevYPos = y;
