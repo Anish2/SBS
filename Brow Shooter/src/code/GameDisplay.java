@@ -36,10 +36,10 @@ public class GameDisplay extends PApplet {
 	private ArrayList<int[]> steps = new ArrayList<int[]>();
 
 	public void setup() {
-		size(400, 600, P2D);
+		//size(400, 600, P2D);
 		Fisica.init(this);
 		//frameRate(250);		
-		//size(500, 750, P2D);
+		size(500, 750, P2D);
 		// size(displayWidth, displayHeight, P2D); // for android
 		background(0);
 		left_browImg = loadImage("brow BBBB L.png");
@@ -167,7 +167,7 @@ public class GameDisplay extends PApplet {
 		}
 		else if (frameCount == 950) {
 			clearScissors();
-			addSnake(200, -250);
+			addSnake((200f/400)*width, (-250f/600)*height);
 			handleSnake();
 		}
 		else if (frameCount <= 1600) {	
@@ -429,14 +429,14 @@ public class GameDisplay extends PApplet {
 	public void handleSnake() {
 		for (int i = 0; i < bottom.size(); i++) {
 			if (currentNum >= steps.size()) return;
-			follow(top.get(i), bottom.get(i), steps.get(currentNum)[0], steps.get(currentNum)[1], (3f/(400*600))*width*height);
+			follow(top.get(i), bottom.get(i), steps.get(currentNum)[0], steps.get(currentNum)[1], (3f/400)*width, (3f/600)*height);
 			currentNum++;
-		}	
+		}
 
-		/*if (bottom.size() > 0 && deploymentNum < 5 && bottom.get(bottom.size()-1).getY() >= -50) {
-			addSnake(200, -250);
+		if (bottom.size() > 0 && deploymentNum < 1) {
+			addSnake((200f/400)*width, (-250f/600)*height);
 			deploymentNum++;
-		}*/
+		}
 	}
 
 	public void addSnake(float x, float y) {
@@ -459,7 +459,7 @@ public class GameDisplay extends PApplet {
 		world.add(topTemp);
 	}
 
-	public void follow(FBox top, FBox bottom, float a, float b, float speed) {
+	public void follow(FBox top, FBox bottom, float a, float b, float speedX, float speedY) {
 		float m = (top.getY() - b)/(top.getX() - a);
 		float theta = degrees(atan(m));
 		if (theta < 0) {
@@ -468,8 +468,8 @@ public class GameDisplay extends PApplet {
 		if (b < top.getY()) {
 			theta += 180;
 		}		
-		float comp_x = speed*cos(radians(theta));
-		float comp_y = speed*sin(radians(theta));
+		float comp_x = speedX*cos(radians(theta));
+		float comp_y = speedY*sin(radians(theta));
 		top.setPosition(top.getX() + comp_x, top.getY() + comp_y);
 		bottom.setPosition(bottom.getX() + comp_x, bottom.getY() + comp_y);
 		theta -= 170;

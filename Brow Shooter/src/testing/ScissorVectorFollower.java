@@ -51,8 +51,6 @@ public class ScissorVectorFollower extends PApplet {
 		sc.setPosition(200, 200);
 		sc.setStatic(true);
 		//world.add(sc);
-
-
 	}
 
 	public void draw() {
