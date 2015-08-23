@@ -146,7 +146,7 @@ public class GameDisplay extends PApplet {
 			addMoreStraightLineVertical(1, 0, (100f/400)*width, -83);
 			handleStraightLineVertical(100, 4f);
 		}
-		else if (frameCount <= 350) {
+		else if (frameCount > 15 && frameCount <= 350) {
 			handleStraightLineVertical(90, 4f);
 		}
 		else if (frameCount == 375) {
@@ -154,7 +154,7 @@ public class GameDisplay extends PApplet {
 			addMoreStraightLineVertical(1, 0, (250f/400)*width, -83);
 			handleStraightLineVertical(200, 4f);
 		}
-		else if (frameCount <= 695) {
+		else if (frameCount > 375 && frameCount <= 695) {
 			handleStraightLineVertical(200, 4f);
 		}
 		else if (frameCount == 715) {
@@ -162,7 +162,7 @@ public class GameDisplay extends PApplet {
 			addMoreCurveLeftTop(1, (550f/400)*width, (400f/600)*height, 0);
 			handleCurveLeftTop(8f, 2f);
 		}
-		else if (frameCount <= 915) {
+		else if (frameCount > 715 && frameCount <= 915) {
 			handleCurveLeftTop(8f, 2f);
 		}
 		else if (frameCount == 950) {
@@ -170,7 +170,7 @@ public class GameDisplay extends PApplet {
 			addSnake((200f/400)*width, (-250f/600)*height);
 			handleSnake();
 		}
-		else if (frameCount <= 1600) {	
+		else if (frameCount > 950 && frameCount <= 1600) {	
 			handleSnake();
 		}
 		else {
@@ -427,13 +427,18 @@ public class GameDisplay extends PApplet {
 	}
 
 	public void handleSnake() {
+		//System.out.println(bottom);
+		final int OFFSET = 43;
 		for (int i = 0; i < bottom.size(); i++) {
-			if (currentNum >= steps.size()) return;
-			follow(top.get(i), bottom.get(i), steps.get(currentNum)[0], steps.get(currentNum)[1], (3f/400)*width, (3f/600)*height);
-			currentNum++;
+			int offset = OFFSET*i;
+			if (currentNum-offset >= steps.size()) continue;			
+			if (currentNum >= offset)
+				follow(top.get(i), bottom.get(i), steps.get(currentNum-offset)[0], steps.get(currentNum-offset)[1], (3f/400)*width, (3f/600)*height);			
 		}
+		
+		currentNum++;
 
-		if (bottom.size() > 0 && deploymentNum < 1) {
+		if (bottom.size() > 0 && deploymentNum < 5) {
 			addSnake((200f/400)*width, (-250f/600)*height);
 			deploymentNum++;
 		}
