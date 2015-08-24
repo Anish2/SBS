@@ -12,7 +12,7 @@ import fisica.FCircle;
 import fisica.FWorld;
 import fisica.Fisica;
 
-public class GameDisplay extends PApplet {
+public class GameDisplay {
 
 	private PImage left_browImg, right_browImg, flame_oneImg, flame_twoImg, flame_threeImg, flame_fourImg;
 	private PImage bg, barImg, cloud, cloud2, cloud3, cloud4, cloud5, cloud6;
@@ -23,7 +23,7 @@ public class GameDisplay extends PApplet {
 	private FBox left_brow, right_brow, flame_one, flame_two, flame_three, flame_four;
 	private float bgXPos, bgYPos, cloudXPos, cloudYPos, backYPos, fastCloudX, fastCloudY;
 	private boolean left, right, up, down;
-	private int mussle_num = 0, deploymentNum, currentNum;
+	private int mussle_num = 0, deploymentNum, currentNum, width, height, frameCount = 0;
 	private float hor_speed, vert_speed;
 	private boolean isTransformed = false, switchBg = true;
 	private float prevXPos, prevYPos;
@@ -34,36 +34,46 @@ public class GameDisplay extends PApplet {
 	private BufferedReader in;
 	private String tempStr;
 	private ArrayList<int[]> steps = new ArrayList<int[]>();
+	private PApplet p;
+
+	public GameDisplay(PApplet p) {
+		this.p = p;		
+	}
 
 	public void setup() {
-		//size(400, 600, P2D);
-		Fisica.init(this);
-		//frameRate(250);		
-		size(500, 750, P2D);
-		// size(displayWidth, displayHeight, P2D); // for android
-		background(0);
-		left_browImg = loadImage("brow BBBB L.png");
-		right_browImg = loadImage("brow BBBB R.png");
-		flame_oneImg = loadImage("1.png");
-		flame_twoImg = loadImage("2.png");
-		flame_threeImg = loadImage("3.png");
-		flame_fourImg = loadImage("4.png");
+		width = 400;
+		height = 600;
+		Fisica.init(p);
+		p.size(width, height, p.P2D);
+		//p.frameRate(250);		
+		//p.size(500, 750, p.P2D);
+		// size(displayWidth, displayHeight, p.P2D); // for android
+		normalSetup();
+		nonComputeDraw();
+	}
+
+	public void normalSetup() {
+		left_browImg = p.loadImage("brow BBBB L.png");
+		right_browImg = p.loadImage("brow BBBB R.png");
+		flame_oneImg = p.loadImage("1.png");
+		flame_twoImg = p.loadImage("2.png");
+		flame_threeImg = p.loadImage("3.png");
+		flame_fourImg = p.loadImage("4.png");
 		//bullets1 = loadImage("bullets1.png");
 		//bullets1 = loadImage("superbullet1.png");
-		bullets1 = loadImage("bluebird2.png");
-		bullets2 = loadImage("bullets2.png");
-		bullets3 = loadImage("bullets3.png");
-		bullets4 = loadImage("bullets4.png");
-		bullets5 = loadImage("bullets5.png");
-		barImg = loadImage("brow bars 1.png");
-		bg = loadImage("map.png");
-		cloud = loadImage("cloud1.png");
-		cloud2 = loadImage("cloud2.png");
-		cloud3 = loadImage("cloud3.png");
-		cloud4 = loadImage("cloud4.png");
-		cloud5 = loadImage("cloud5.png");
-		cloud6 = loadImage("cloud6.png");
-
+		bullets1 = p.loadImage("bluebird2.png");
+		bullets2 = p.loadImage("bullets2.png");
+		bullets3 = p.loadImage("bullets3.png");
+		bullets4 = p.loadImage("bullets4.png");
+		bullets5 = p.loadImage("bullets5.png");
+		barImg = p.loadImage("brow bars 1.png");
+		bg = p.loadImage("map.png");
+		cloud = p.loadImage("cloud1.png");
+		cloud2 = p.loadImage("cloud2.png");
+		cloud3 = p.loadImage("cloud3.png");
+		cloud4 = p.loadImage("cloud4.png");
+		cloud5 = p.loadImage("cloud5.png");
+		cloud6 = p.loadImage("cloud6.png");		
 		left_browImg.resize(width, height);
 		right_browImg.resize(width, height);
 		barImg.resize(width, height);
@@ -87,54 +97,100 @@ public class GameDisplay extends PApplet {
 		cloud5.resize(cloud_resX, cloud_resY);
 		cloud6.resize(cloud_resX, cloud_resY);
 
-		bottomImg = loadImage("brow_scissors1.png");
-		topImg = loadImage("brow_scissors2.png");
+		bottomImg = p.loadImage("brow_scissors1.png");
+		topImg = p.loadImage("brow_scissors2.png");
 		bottomImg.resize(width/4, height/4);
 		topImg.resize(width/4,  height/4);
 
 		cached_cloud = cloud;
 		memcached_cloud = cloud;
-		in = createReader("C:\\Users\\Anish\\git\\SBS\\Brow Shooter\\src\\data\\brow_motion.txt");
-		String p;
+		in = p.createReader("C:\\Users\\Anish\\git\\SBS\\Brow Shooter\\src\\data\\brow_motion.txt");
+		String pstr;
 		try {
-			p = in.readLine();
-			while (p != null) {
-				String[] chunks = p.split(" ");
+			pstr = in.readLine();
+			while (pstr != null) {
+				String[] chunks = pstr.split(" ");
 				int[] step = {(int) ((Integer.parseInt(chunks[0])/400f)*width), (int) ((Integer.parseInt(chunks[1])/600f)*height)};
 				steps.add(step);
-				p = in.readLine();
+				pstr = in.readLine();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		bottom = new ArrayList<FBox>();
+		top = new ArrayList<FBox>();
 
-		normalSetup();
+	}
+
+	public void nonComputeDraw() {
+		right_brow = new FBox(10,10);
+		right_brow.attachImage(right_browImg);
+		right_brow.setPosition(((194+8+10+3)/400f)*width, (410f/600)*height);
+		right_brow.setStatic(true);
+
+		left_brow = new FBox(10,10);
+		left_brow.attachImage(left_browImg);
+		left_brow.setPosition(((194-8+10+3)/400f)*width, (410f/600)*height);
+		left_brow.setStatic(true);
+
+		flame_one = new FBox(10,10);
+		flame_one.attachImage(flame_oneImg);
+		flame_one.setPosition(((184+3)/400f)*width, (405f/600)*height);
+		flame_one.setStatic(true);
+		prevXPos = flame_one.getX();
+		prevYPos = flame_one.getY();
+
+		flame_two = new FBox(10,10);
+		flame_two.attachImage(flame_oneImg);
+		flame_two.setPosition(((207+3)/400f)*width, (405f/600)*height);
+		flame_two.setStatic(true);
+
+		bgXPos = -0.25f*width;
+		bgYPos = -0.25f*height;
+		backYPos = -height;
+		cloudXPos = 0;
+		cloudYPos = 0;
+		hor_speed = (7f/400)*width;
+		vert_speed = (7f/600)*height;
+
+		// world configuration
+		world = new FWorld();
+		world.setGrabbable(false);
+		world.setGravity(0, 0);
+		world.add(left_brow);
+		world.add(right_brow);
+		world.add(flame_one);
+		world.add(flame_two);
+		//world.add(bar);		
+	}
+
+	public boolean isReady() {
+		return top != null;
 	}
 
 	public void draw() {	
 		handleScreenMotion();
-		background(120);
-
-		image(bg, bgXPos, bgYPos+(0/600f)*height);		
-		image(bg, bgXPos, backYPos-(450/600f)*height);
+		p.background(120);		
+		p.image(bg, bgXPos, bgYPos+(0/600f)*height);		
+		p.image(bg, bgXPos, backYPos-(450/600f)*height);
 		PImage[] clouds = {cloud, cloud2, cloud3, cloud4, cloud5, cloud6};
 		if (frameCount % 150 == 60) {
 			cloudXPos = randInt((int)((20f/400)*width), (int)((380f/400)*width));
 			cloudYPos = (-250f/600)*height;
 			int rand = randInt(0, clouds.length-1);
-			image(clouds[rand], cloudXPos, cloudYPos);
+			p.image(clouds[rand], cloudXPos, cloudYPos);
 			cached_cloud = clouds[rand];
 		}
 		else if (frameCount % 80 == 42) {
 			fastCloudX = randInt((int)((40f/400)*width), (int)((360f/400)*width));
 			fastCloudY = (-250f/600)*height;
 			int rand = randInt(0, clouds.length-1);
-			image(clouds[rand], cloudXPos, cloudYPos);
+			p.image(clouds[rand], cloudXPos, cloudYPos);
 			memcached_cloud = clouds[rand];
 		}
 		else {
-			image(cached_cloud, cloudXPos, cloudYPos);
-			image(memcached_cloud, fastCloudX, fastCloudY);
+			p.image(cached_cloud, cloudXPos, cloudYPos);
+			p.image(memcached_cloud, fastCloudX, fastCloudY);
 		}
 
 		mussleFire();
@@ -193,6 +249,7 @@ public class GameDisplay extends PApplet {
 		world.draw();
 		world.step();
 		mussle_num++;
+		frameCount++;
 
 	}
 
@@ -246,7 +303,7 @@ public class GameDisplay extends PApplet {
 
 		float[] bottomLeftScissor = null, topLeftScissor = null, bottomRightScissor = null, topRightScissor = null;
 		// scissor mapping
-		float angle = degrees(scissor.getRotation());
+		float angle = p.degrees(scissor.getRotation());
 		if (angle < 0) angle += 360f;
 		if (angle > 0 && angle < 90) { // case 1
 			bottomRightScissor = new float[] {scissor.getX()+((215-200)/400f)*width, scissor.getY()+((230-200)/600f)*height};
@@ -382,14 +439,14 @@ public class GameDisplay extends PApplet {
 			bottomTemp.setStatic(true);
 			bottomTemp.attachImage(bottomImg);
 			bottomTemp.setPosition(xCounter, y);
-			bottomTemp.setRotation(radians(rotation));
+			bottomTemp.setRotation(p.radians(rotation));
 			bottomTemp.setName("1");
 
 			FBox topTemp = new FBox(10, 10);
 			topTemp.setStatic(true);
 			topTemp.attachImage(topImg);
 			topTemp.setPosition(xCounter, y);
-			topTemp.setRotation(radians(rotation));
+			topTemp.setRotation(p.radians(rotation));
 			bottomTemp.setName("1");
 
 			bottom.add(bottomTemp);
@@ -407,14 +464,14 @@ public class GameDisplay extends PApplet {
 			bottomTemp.setStatic(true);
 			bottomTemp.attachImage(bottomImg);
 			bottomTemp.setPosition(x, yCounter);
-			bottomTemp.setRotation(radians(rotation));
+			bottomTemp.setRotation(p.radians(rotation));
 			bottomTemp.setName("2");
 
 			FBox topTemp = new FBox(10, 10);
 			topTemp.setStatic(true);
 			topTemp.attachImage(topImg);
 			topTemp.setPosition(x, yCounter);
-			topTemp.setRotation(radians(rotation));
+			topTemp.setRotation(p.radians(rotation));
 			topTemp.setName("2");
 
 			bottom.add(bottomTemp);
@@ -435,7 +492,7 @@ public class GameDisplay extends PApplet {
 			if (currentNum >= offset)
 				follow(top.get(i), bottom.get(i), steps.get(currentNum-offset)[0], steps.get(currentNum-offset)[1], (3f/400)*width, (3f/600)*height);			
 		}
-		
+
 		currentNum++;
 
 		if (bottom.size() > 0 && deploymentNum < 5) {
@@ -466,20 +523,20 @@ public class GameDisplay extends PApplet {
 
 	public void follow(FBox top, FBox bottom, float a, float b, float speedX, float speedY) {
 		float m = (top.getY() - b)/(top.getX() - a);
-		float theta = degrees(atan(m));
+		float theta = p.degrees(p.atan(m));
 		if (theta < 0) {
 			theta += 180;			
 		}
 		if (b < top.getY()) {
 			theta += 180;
 		}		
-		float comp_x = speedX*cos(radians(theta));
-		float comp_y = speedY*sin(radians(theta));
+		float comp_x = speedX*p.cos(p.radians(theta));
+		float comp_y = speedY*p.sin(p.radians(theta));
 		top.setPosition(top.getX() + comp_x, top.getY() + comp_y);
 		bottom.setPosition(bottom.getX() + comp_x, bottom.getY() + comp_y);
 		theta -= 170;
-		bottom.setRotation(radians(theta));
-		top.setRotation(radians(theta));
+		bottom.setRotation(p.radians(theta));
+		top.setRotation(p.radians(theta));
 	}
 
 	public static int randInt(int min, int max) {
@@ -508,8 +565,8 @@ public class GameDisplay extends PApplet {
 			top.get(i).setPosition(top.get(i).getX() - hor_speed, top.get(i).getY() - vert_speed);
 			bottom.get(i).setPosition(bottom.get(i).getX() - hor_speed, bottom.get(i).getY() - vert_speed);
 
-			top.get(i).setRotation(top.get(i).getRotation() + radians(0.8f));
-			bottom.get(i).setRotation(bottom.get(i).getRotation() + radians(0.8f));
+			top.get(i).setRotation(top.get(i).getRotation() + p.radians(0.8f));
+			bottom.get(i).setRotation(bottom.get(i).getRotation() + p.radians(0.8f));
 			hor_speed -= (0.85f/400)*width;
 			vert_speed += (2f/600)*height;
 		}
@@ -565,53 +622,7 @@ public class GameDisplay extends PApplet {
 
 		prevXPos = x;
 		prevYPos = y;
-	}
-
-	public void normalSetup() {
-		right_brow = new FBox(10,10);
-		right_brow.attachImage(right_browImg);
-		right_brow.setPosition(((194+8+10+3)/400f)*width, (410f/600)*height);
-		right_brow.setStatic(true);
-
-		left_brow = new FBox(10,10);
-		left_brow.attachImage(left_browImg);
-		left_brow.setPosition(((194-8+10+3)/400f)*width, (410f/600)*height);
-		left_brow.setStatic(true);
-
-		flame_one = new FBox(10,10);
-		flame_one.attachImage(flame_oneImg);
-		flame_one.setPosition(((184+3)/400f)*width, (405f/600)*height);
-		flame_one.setStatic(true);
-		prevXPos = flame_one.getX();
-		prevYPos = flame_one.getY();
-
-		flame_two = new FBox(10,10);
-		flame_two.attachImage(flame_oneImg);
-		flame_two.setPosition(((207+3)/400f)*width, (405f/600)*height);
-		flame_two.setStatic(true);
-
-		bgXPos = -0.25f*width;
-		bgYPos = -0.25f*height;
-		backYPos = -height;
-		cloudXPos = 0;
-		cloudYPos = 0;
-		hor_speed = (7f/400)*width;
-		vert_speed = (7f/600)*height;
-
-		// world configuration
-		world = new FWorld();
-		world.setGrabbable(false);
-		world.setGravity(0, 0);
-		world.add(left_brow);
-		world.add(right_brow);
-		world.add(flame_one);
-		world.add(flame_two);
-		//world.add(bar);
-
-		bottom = new ArrayList<FBox>();
-		top = new ArrayList<FBox>();
-
-	}
+	}	
 
 	public void mussleFire() {
 		int num = mussle_num % 4;
@@ -644,7 +655,7 @@ public class GameDisplay extends PApplet {
 			}
 		}
 
-		strokeWeight(1);
+		p.strokeWeight(1);
 		PImage temp2 = flame_twoImg;
 		PImage temp1 = flame_oneImg;
 		FCircle bullet = null;
@@ -724,13 +735,13 @@ public class GameDisplay extends PApplet {
 			right_brow = new FBox(10,10);
 			right_brow.attachImage(right_browImg);
 			right_brow.setPosition(flame_one.getX()+(105f/400)*width, flame_one.getY()+(45f/600)*height);
-			right_brow.setRotation(radians(60));
+			right_brow.setRotation(p.radians(60));
 			right_brow.setStatic(true);
 
 			left_brow = new FBox(10,10);
 			left_brow.attachImage(left_browImg);
 			left_brow.setPosition(flame_two.getX()-(96f/400)*width, flame_two.getY()+(33f/600)*height);
-			left_brow.setRotation(radians(-60));
+			left_brow.setRotation(p.radians(-60));
 			left_brow.setStatic(true);			
 		}
 
@@ -754,8 +765,8 @@ public class GameDisplay extends PApplet {
 		// physical position of flame one
 		float fx = flame_one.getX() + (8f/400)*width;
 		float fy = flame_one.getY() + (85f/600)*height;
-		float deltax = mouseX - fx;
-		float deltay = mouseY - fy;
+		float deltax = p.mouseX - fx;
+		float deltay = p.mouseY - fy;
 		if (Math.abs(deltax) > 0.1 && Math.abs(deltay) > 0.1) {
 			float y = (deltay/5f);
 			//float x = (Math.abs((y*deltax)/deltay) * deltax)/(-deltax);	
@@ -796,21 +807,21 @@ public class GameDisplay extends PApplet {
 
 	public void keyReleased()
 	{
-		if (key == CODED)
+		if (p.key == p.CODED)
 		{
-			if (keyCode == LEFT)
+			if (p.keyCode == p.LEFT)
 			{
 				left = false;
 			}
-			if (keyCode == RIGHT)
+			if (p.keyCode == p.RIGHT)
 			{
 				right = false;
 			}
-			if(keyCode == UP)
+			if(p.keyCode == p.UP)
 			{
 				up = false;
 			}
-			if(keyCode == DOWN)
+			if(p.keyCode == p.DOWN)
 			{
 				down = false;
 			}
@@ -820,21 +831,21 @@ public class GameDisplay extends PApplet {
 
 	public void keyPressed()
 	{
-		if (key == CODED)
+		if (p.key == p.CODED)
 		{
-			if (keyCode == LEFT)
+			if (p.keyCode == p.LEFT)
 			{
 				left = true;
 			}
-			if (keyCode == RIGHT)
+			if (p.keyCode == p.RIGHT)
 			{
 				right = true;
 			}
-			if(keyCode == UP)
+			if(p.keyCode == p.UP)
 			{
 				up = true;
 			}
-			if(keyCode == DOWN)
+			if(p.keyCode == p.DOWN)
 			{
 				down = true;
 			}
